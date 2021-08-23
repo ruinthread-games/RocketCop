@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/vamping action sketch 1.wav-9c3d6d84bfdd5c31cb9a293ef6ad197a.sample"
+
+[deps]
+
+source_file="res://Concept and Notes/Music and VO/vamping action sketch 1.wav"
+dest_files=[ "res://.import/vamping action sketch 1.wav-9c3d6d84bfdd5c31cb9a293ef6ad197a.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

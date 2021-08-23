@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/pc reply enemy 01.wav-31edda3af2b5c70ef98e7ab650e9efc3.sample"
+
+[deps]
+
+source_file="res://Concept and Notes/Music and VO/pc reply enemy 01.wav"
+dest_files=[ "res://.import/pc reply enemy 01.wav-31edda3af2b5c70ef98e7ab650e9efc3.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

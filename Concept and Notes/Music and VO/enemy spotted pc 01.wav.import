@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/enemy spotted pc 01.wav-2349addd7b5a00fc633645b7ba49bb17.sample"
+
+[deps]
+
+source_file="res://Concept and Notes/Music and VO/enemy spotted pc 01.wav"
+dest_files=[ "res://.import/enemy spotted pc 01.wav-2349addd7b5a00fc633645b7ba49bb17.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
