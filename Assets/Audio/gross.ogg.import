@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/gross.ogg-68bf36342cf7e5d9ef0183db9b6e2a25.oggstr"
+
+[deps]
+
+source_file="res://Assets/Audio/gross.ogg"
+dest_files=[ "res://.import/gross.ogg-68bf36342cf7e5d9ef0183db9b6e2a25.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
