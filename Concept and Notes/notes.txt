@@ -1,0 +1,19 @@
+From meeting:
+
+Map layout notes:
+-place smaller buildings between larger fighting arenas
+-possibly populate some of these with smaller mobs or more sparse enemies
+-larger arenas located on massive skyscrapers might have scaffolding that functions as platforming element
+
+Weapon / equipment notes:
+-grenade launcher should have a magazine, 5-6 rounds, and require reloading - but has an infinite ammo reserve pool (can always reload)
+-jetpack should have limited fuel, est. 5-10 seconds burst time, with perhaps 3 - 5 seconds recharge time
+
+Voice notes:
+-enemy should play cue for when spotting the PC
+-PC will 'respond' to these under certain conditions; if the fight is just beginning, and possibly on random occurances throughout battle
+-enemy should play cues for dying from weaponry, and also dying when falling (different lines)
+-PC might play a cue for when he dies too
+
+Reload animation notes:
+-grenade launcher should have very basic arm motion for reload anim
