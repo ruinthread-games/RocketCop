@@ -8,10 +8,13 @@ onready var camera_pivot : Spatial = $CameraPivot
 var camera_offset : Vector3 = Vector3(0,0,0)
 var camera_transform : Transform
 
+const RUNNING_SPEED = 30.0
+const AIMING_RUN_SPEED = 5.0
+
 var direction_forward_axis : Vector3
 var direction_side_axis :Vector3
 var direction : Vector3
-var speed : float = 30.0
+var speed : float = RUNNING_SPEED
 var velocity : Vector3
 var last_velocity : Vector3
 var acceleration : Vector3
@@ -37,6 +40,10 @@ var JETPACK_RECHARGE_RATE : float = 0.5
 
 onready var jetpack_charge_bar = $PlayerUI/JetpackCharge
 
+var aim_down_sights_progress : float = 0.0
+var AIM_DOWN_SIGHTS_SPEED : float = 2.0
+var UNAIM_DOWN_SIGHTS_SPEED : float = 4.0
+
 func _ready():
 	camera_pivot.set_as_toplevel(true)
 	mesh.connect("bounce",self,"on_bounce")
@@ -44,7 +51,7 @@ func _ready():
 func _process(delta):
 	set_camera_follow()
 	get_camera_transform()
-	get_input()
+	get_input(delta)
 	recharge_jetpack(delta)
 #	$DebugLabel.text = str('u/d vel: ',up_down_movement.y)
 	
@@ -75,10 +82,26 @@ func set_camera_follow():
 func get_camera_transform():
 	camera_transform = camera_pivot.give_direction()
 
-func get_input():
+func get_input(delta):
 	direction_forward_axis = (-Input.get_action_strength("move_forward") + Input.get_action_strength("move_backwards")) * camera_transform.basis.z
 	direction_side_axis = (-Input.get_action_strength("move_left") + Input.get_action_strength("move_right")) * camera_transform.basis.x
 	direction = (direction_forward_axis + direction_side_axis).normalized()
+	
+	if Input.is_action_pressed("aim_down_sights"):
+		change_aim_down_sights_progress(AIM_DOWN_SIGHTS_SPEED * delta)
+	else:
+		change_aim_down_sights_progress(-UNAIM_DOWN_SIGHTS_SPEED * delta)
+
+func change_aim_down_sights_progress(delta_ads):
+	aim_down_sights_progress = clamp(aim_down_sights_progress + delta_ads, 0.0, 1.0)
+	var crosshair_alpha = aim_down_sights_progress
+	if aim_down_sights_progress == 1.0:
+		$PlayerUI/Crosshair.modulate = Color(1,0,0,crosshair_alpha)
+	else:
+		$PlayerUI/Crosshair.modulate = Color(1,1,1,crosshair_alpha)
+	$CameraPivot/CameraPivot/SpringArm.spring_length = lerp(5.0,2.5,aim_down_sights_progress)
+	camera_offset = lerp(Vector3.ZERO,Vector3(0,1,0)+camera_pivot.global_transform.basis.x,aim_down_sights_progress)
+	speed = lerp(RUNNING_SPEED,AIMING_RUN_SPEED,aim_down_sights_progress)
 
 func move():
 	velocity = move_and_slide(velocity,Vector3.UP)
@@ -112,7 +135,7 @@ func rotate_towards_acceleration(delta):
 
 func blend_idle_run():
 	if is_on_floor():
-		animation_tree.set("parameters/IdleRunBlend/blend_amount",clamp(velocity.length()/speed,0,1))
+		animation_tree.set("parameters/IdleRunBlend/blend_amount",clamp(velocity.length()/RUNNING_SPEED,0,1))
 	else:
 		animation_tree.set("parameters/IdleRunBlend/blend_amount",0)
 
