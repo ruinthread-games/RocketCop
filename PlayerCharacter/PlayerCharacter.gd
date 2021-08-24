@@ -1,3 +1,4 @@
+tool
 extends KinematicBody
 
 onready var player_mesh_pivot : Spatial = $MeshPivot
@@ -44,11 +45,64 @@ var aim_down_sights_progress : float = 0.0
 var AIM_DOWN_SIGHTS_SPEED : float = 2.0
 var UNAIM_DOWN_SIGHTS_SPEED : float = 4.0
 
+var GRENADES_PER_CLIP = 6
+var ammo_in_clip = GRENADES_PER_CLIP
+onready var projectile_base = load("res://PlayerCharacter/Projectile/Projectile.tscn")
+
+func create_master_animations():
+	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
+	
+	for anim_label in delete_extra_keyframes_anims:
+		var anim = $MeshPivot/AnimationPlayer.get_animation(anim_label)
+		for track_index in range(anim.get_track_count()):
+#			print('track', track_index, anim.track_get_path(track_index))
+			for key_index in range(anim.track_get_key_count(track_index)):
+				var time = anim.track_get_key_time(track_index,key_index)
+				if time != 0:
+#					print('track ind', track_index, 'key ind', key_index, 'time: ', time)
+					anim.track_remove_key(track_index,key_index)
+#			anim.track_remove_key_at_position(track_index,0.04)
+#		var track_index = anim.find_track("Armature/Skeleton")
+#		print('del keyframes track index', track_index)
+	
+	if Engine.editor_hint:
+		if $MeshPivot/AnimationPlayer.has_animation("IdleMaster"):
+			print('idle animation already exists!')
+		else:
+			var idle_master_animation = Animation.new()
+			var idle_master_track_index = idle_master_animation.add_track(Animation.TYPE_VALUE)
+			idle_master_animation.track_set_path(idle_master_track_index, "AnimationTree:parameters/Idle/BlendSpace1D/blend_position")
+			idle_master_animation.track_insert_key(idle_master_track_index, 0, -1)
+			idle_master_animation.track_insert_key(idle_master_track_index, 0.5, 1)
+			idle_master_animation.loop = true
+			$MeshPivot/AnimationPlayer.add_animation("IdleMaster",idle_master_animation)
+			
+		if $MeshPivot/AnimationPlayer.has_animation("RunningMaster"):
+			print('running anim already exists!')
+		else:
+			var running_master_animation = Animation.new()
+			var running_master_track_index = running_master_animation.add_track(Animation.TYPE_VALUE)
+			running_master_animation.track_set_path(running_master_track_index, "AnimationTree:parameters/Running/BlendSpace2D/blend_position")
+			running_master_animation.track_insert_key(running_master_track_index, 0, Vector2(-1,0),2.0)
+			running_master_animation.track_insert_key(running_master_track_index, 0.2, Vector2(0,1),0.5)
+			running_master_animation.track_insert_key(running_master_track_index, 0.4, Vector2(1,0),2.0)
+			running_master_animation.track_insert_key(running_master_track_index, 0.6, Vector2(0,-1),0.5)
+			var running_bounce_track_index = running_master_animation.add_track(Animation.TYPE_METHOD)
+			running_master_animation.track_set_path(running_bounce_track_index, ".")
+			running_master_animation.track_insert_key(running_bounce_track_index,0.2,{"method":"bounce","args":[]})
+			running_master_animation.track_insert_key(running_bounce_track_index,0.6,{"method":"bounce","args":[]})
+			running_master_animation.loop = true
+			running_master_animation.set_length(0.8)
+			$MeshPivot/AnimationPlayer.add_animation("RunningMaster",running_master_animation)
+			
 func _ready():
 	camera_pivot.set_as_toplevel(true)
 	mesh.connect("bounce",self,"on_bounce")
 	
 func _process(delta):
+#	create_master_animations()
+	if Engine.editor_hint:
+		return
 	set_camera_follow()
 	get_camera_transform()
 	get_input(delta)
@@ -56,6 +110,8 @@ func _process(delta):
 #	$DebugLabel.text = str('u/d vel: ',up_down_movement.y)
 	
 func _physics_process(delta):
+	if Engine.editor_hint:
+		return
 	calculate_velocity(delta)
 	find_velocity_facing_direction()
 	find_acceleration()
@@ -91,17 +147,42 @@ func get_input(delta):
 		change_aim_down_sights_progress(AIM_DOWN_SIGHTS_SPEED * delta)
 	else:
 		change_aim_down_sights_progress(-UNAIM_DOWN_SIGHTS_SPEED * delta)
+		
+	if Input.is_action_just_pressed("fire_grenade"):
+		fire_grenade()
+		
+	if Input.is_action_just_pressed("reload"):
+		reload()
+
+func change_ammo_in_clip(delta_ammo):
+	ammo_in_clip = clamp(ammo_in_clip+delta_ammo,0,GRENADES_PER_CLIP)
+	$PlayerUI/Crosshair/AmmoLabel.text = str(ammo_in_clip)
+	
+func reload():
+	change_ammo_in_clip(GRENADES_PER_CLIP)
+
+func fire_grenade():
+	if aim_down_sights_progress == 1:
+		if ammo_in_clip > 0:
+			change_ammo_in_clip(-1)
+			var fired_projectile = projectile_base.instance()
+			fired_projectile.global_transform.origin = $MeshPivot/Armature/Skeleton/GrenadeLauncherBarrelBoneAttachment/Spatial.global_transform.origin
+			fired_projectile.set_barrel_transform($MeshPivot/Armature/Skeleton/GrenadeLauncherBarrelBoneAttachment/Spatial.global_transform)
+			get_parent().add_child(fired_projectile)
 
 func change_aim_down_sights_progress(delta_ads):
 	aim_down_sights_progress = clamp(aim_down_sights_progress + delta_ads, 0.0, 1.0)
 	var crosshair_alpha = aim_down_sights_progress
 	if aim_down_sights_progress == 1.0:
 		$PlayerUI/Crosshair.modulate = Color(1,0,0,crosshair_alpha)
+		$MeshPivot/Armature/Skeleton/SkeletonIK.start()
 	else:
 		$PlayerUI/Crosshair.modulate = Color(1,1,1,crosshair_alpha)
+		$MeshPivot/Armature/Skeleton/SkeletonIK.stop()
 	$CameraPivot/CameraPivot/SpringArm.spring_length = lerp(5.0,2.5,aim_down_sights_progress)
 	camera_offset = lerp(Vector3.ZERO,Vector3(0,1,0)+camera_pivot.global_transform.basis.x,aim_down_sights_progress)
 	speed = lerp(RUNNING_SPEED,AIMING_RUN_SPEED,aim_down_sights_progress)
+	$MeshPivot/AnimationTree.set("parameters/ADSBlend/blend_amount",aim_down_sights_progress)
 
 func move():
 	velocity = move_and_slide(velocity,Vector3.UP)
@@ -115,6 +196,9 @@ func calculate_velocity(delta):
 func find_velocity_facing_direction():
 	if velocity != Vector3.ZERO:
 		rotation_transform = mesh.transform.looking_at(-velocity,Vector3.UP)
+		
+	if aim_down_sights_progress == 1:
+		mesh.transform = mesh.transform.looking_at(camera_transform.basis.z,Vector3.UP)
 
 func rotate_towards_velocity(delta):
 	if rotation_transform != null:
@@ -141,7 +225,6 @@ func blend_idle_run():
 
 func apply_jetpack(delta):
 	if Input.is_action_pressed("engage_jetpack") and jetpack_charge > 0:
-		print('jetpack activate!')
 		up_down_movement.y += JETPACK_ACCELERATION * delta
 		up_down_movement.y = clamp(up_down_movement.y,TERMINAL_GRAVITY_VELOCITY_Y,TERMINAL_JETPACK_VELOCITY_Y)
 		up_down_movement = move_and_slide(up_down_movement,Vector3.UP)
