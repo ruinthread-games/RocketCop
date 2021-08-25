@@ -32,7 +32,7 @@ const TILT_SCALE : float = 0.2
 const GRAVITY : float = 70.0
 const TERMINAL_GRAVITY_VELOCITY_Y : float = -50.0
 const TERMINAL_JETPACK_VELOCITY_Y : float = 50.0
-const JETPACK_ACCELERATION : float = 100.0
+const JETPACK_ACCELERATION : float = 130.0
 const BOUNCE_FORCE : float = 20.0
 
 var jetpack_charge : float = 1.0
@@ -129,7 +129,7 @@ func recharge_jetpack(delta):
 		change_jetpack_charge(JETPACK_RECHARGE_RATE * delta)
 	
 func change_jetpack_charge(delta_charge):
-	jetpack_charge = clamp(jetpack_charge + delta_charge, 0.0, 1.0)
+	jetpack_charge = clamp(jetpack_charge + delta_charge, -1.0, 1.0)
 	jetpack_charge_bar.value = jetpack_charge
 	
 func set_camera_follow():
@@ -224,8 +224,11 @@ func blend_idle_run():
 		animation_tree.set("parameters/IdleRunBlend/blend_amount",0)
 
 func apply_jetpack(delta):
-	if Input.is_action_pressed("engage_jetpack") and jetpack_charge > 0:
-		up_down_movement.y += JETPACK_ACCELERATION * delta
+	if Input.is_action_pressed("engage_jetpack"):
+		if jetpack_charge > 0:
+			up_down_movement.y += JETPACK_ACCELERATION * delta
+		elif jetpack_charge > -0.25:
+			up_down_movement.y += (1-abs(jetpack_charge))*GRAVITY * delta #limited overcharge jetpack for 'hang time'
 		up_down_movement.y = clamp(up_down_movement.y,TERMINAL_GRAVITY_VELOCITY_Y,TERMINAL_JETPACK_VELOCITY_Y)
 		up_down_movement = move_and_slide(up_down_movement,Vector3.UP)
 		change_jetpack_charge(- JETPACK_DEPLETION_RATE * delta)

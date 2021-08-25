@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Levels/Level.gd" type="Script" id=1]
 [ext_resource path="res://PlayerCharacter/PlayerCharacter.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Enemies/EnemyThug.tscn" type="PackedScene" id=3]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 100, 2, 100 )
@@ -39,3 +40,6 @@ shape = SubResource( 4 )
 
 [node name="PlayerCharacter" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5318, -24.2454 )
+
+[node name="EnemyThug" parent="." instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.31828, 24.3219 )

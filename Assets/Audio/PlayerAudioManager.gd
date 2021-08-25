@@ -60,7 +60,6 @@ func _get_input():
 	if Input.is_action_just_released("engage_jetpack"):
 		jetpackplayer.stop()
 		isRocketing = false
-		
 	
 	if Input.is_action_just_pressed("fire_grenade") && Input.is_action_pressed("aim_down_sights"):
 		PlayFireGrenade(gunplayer)
