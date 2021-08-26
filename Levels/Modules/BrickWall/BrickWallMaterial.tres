@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[ext_resource path="res://Levels/Modules/BrickWall/BrickWall.shader" type="Shader" id=1]
+
+[resource]
+shader = ExtResource( 1 )
+shader_param/primary_colour = Color( 0.32549, 0.32549, 0.32549, 1 )
+shader_param/secondary_colour = Color( 0.27451, 0.168627, 0.105882, 1 )
+shader_param/brick_dimensions = Vector2( 1, 0.5 )
+shader_param/brick_offset = Vector3( -0.006, -0.974, -0.014 )

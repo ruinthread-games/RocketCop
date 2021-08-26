@@ -1,4 +1,3 @@
-tool
 extends KinematicBody
 
 onready var player_mesh_pivot : Spatial = $MeshPivot
@@ -9,8 +8,11 @@ onready var camera_pivot : Spatial = $CameraPivot
 var camera_offset : Vector3 = Vector3(0,0,0)
 var camera_transform : Transform
 
-const RUNNING_SPEED = 30.0
+const SPRINTING_SPEED = 35.0
+const RUNNING_SPEED = 25.0
 const AIMING_RUN_SPEED = 5.0
+
+var is_sprinting : bool = false
 
 var direction_forward_axis : Vector3
 var direction_side_axis :Vector3
@@ -94,7 +96,10 @@ func create_master_animations():
 			running_master_animation.loop = true
 			running_master_animation.set_length(0.8)
 			$MeshPivot/AnimationPlayer.add_animation("RunningMaster",running_master_animation)
-			
+
+func _init():
+	Globals.current_player = self
+
 func _ready():
 	camera_pivot.set_as_toplevel(true)
 	mesh.connect("bounce",self,"on_bounce")
@@ -105,6 +110,7 @@ func _process(delta):
 		return
 	set_camera_follow()
 	get_camera_transform()
+	update_run_speed()
 	get_input(delta)
 	recharge_jetpack(delta)
 #	$DebugLabel.text = str('u/d vel: ',up_down_movement.y)
@@ -143,7 +149,9 @@ func get_input(delta):
 	direction_side_axis = (-Input.get_action_strength("move_left") + Input.get_action_strength("move_right")) * camera_transform.basis.x
 	direction = (direction_forward_axis + direction_side_axis).normalized()
 	
-	if Input.is_action_pressed("aim_down_sights"):
+	is_sprinting = Input.is_action_pressed("sprint")
+	
+	if not is_sprinting and Input.is_action_pressed("aim_down_sights"):
 		change_aim_down_sights_progress(AIM_DOWN_SIGHTS_SPEED * delta)
 	else:
 		change_aim_down_sights_progress(-UNAIM_DOWN_SIGHTS_SPEED * delta)
@@ -153,6 +161,8 @@ func get_input(delta):
 		
 	if Input.is_action_just_pressed("reload"):
 		reload()
+	
+	
 
 func change_ammo_in_clip(delta_ammo):
 	ammo_in_clip = clamp(ammo_in_clip+delta_ammo,0,GRENADES_PER_CLIP)
@@ -181,8 +191,12 @@ func change_aim_down_sights_progress(delta_ads):
 		$MeshPivot/Armature/Skeleton/SkeletonIK.stop()
 	$CameraPivot/CameraPivot/SpringArm.spring_length = lerp(5.0,2.5,aim_down_sights_progress)
 	camera_offset = lerp(Vector3.ZERO,Vector3(0,1,0)+camera_pivot.global_transform.basis.x,aim_down_sights_progress)
-	speed = lerp(RUNNING_SPEED,AIMING_RUN_SPEED,aim_down_sights_progress)
+	
 	$MeshPivot/AnimationTree.set("parameters/ADSBlend/blend_amount",aim_down_sights_progress)
+
+func update_run_speed():
+	speed = lerp(SPRINTING_SPEED if is_sprinting and is_on_floor() else RUNNING_SPEED,AIMING_RUN_SPEED,aim_down_sights_progress)
+	$DebugLabel.text = str('max speed: ', speed)
 
 func move():
 	velocity = move_and_slide(velocity,Vector3.UP)

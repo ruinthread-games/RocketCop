@@ -48,21 +48,18 @@ func PlayFireGrenade(gunplayer):
 	gunplayer.play()
 
 func _get_input():
-			#jetpack sounds
+	#jetpack sounds
 	if Input.is_action_just_pressed("engage_jetpack"):
 		
 		PlayJetEngage(jetpackplayer)
 		isRocketing = true
 		PlayJetFly(jetpackplayer)
 	
-
-	
 	if Input.is_action_just_released("engage_jetpack"):
 		jetpackplayer.stop()
 		isRocketing = false
 	
 	if Input.is_action_just_pressed("fire_grenade") && Input.is_action_pressed("aim_down_sights"):
-		get_node("../..")
 		if player.ammo_in_clip > 0:
 			PlayFireGrenade(gunplayer)
 	
