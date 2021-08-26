@@ -3,7 +3,7 @@ extends Node
 var jet_fly
 var jet_start
 
-var player # player node
+onready var player = get_node("../..") # player node
 
 # audio stream players
 var jetpackplayer
@@ -62,7 +62,9 @@ func _get_input():
 		isRocketing = false
 	
 	if Input.is_action_just_pressed("fire_grenade") && Input.is_action_pressed("aim_down_sights"):
-		PlayFireGrenade(gunplayer)
+		get_node("../..")
+		if player.ammo_in_clip > 0:
+			PlayFireGrenade(gunplayer)
 	
 	# if the gunplayer is not stopped it will stay in the 'play' state and loop the gun sound
 
