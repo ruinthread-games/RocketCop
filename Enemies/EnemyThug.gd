@@ -2,6 +2,7 @@ tool
 extends KinematicBody
 
 enum { STATE_IDLE, STATE_ATTACKING, STATE_RUNNING }
+var current_state = STATE_IDLE
 
 var aim_down_sights_progress : float = 0.0
 var player_is_visible : bool = false
@@ -15,6 +16,8 @@ const AIM_BIAS_BASE_MAGNITUDE :float = 4.0
 
 const TARGET_PLAYER_AIM_RATE :float = 0.5
 const LOST_PLAYER_AIM_RATE :float = -1.0
+
+var is_dead = false
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
@@ -66,15 +69,18 @@ func _ready():
 	player = Globals.current_player
 	change_aim_down_sights_progress(0)
 	aim_bias = AIM_BIAS_BASE_MAGNITUDE * Vector3(rand_range(0,1),rand_range(0,1),rand_range(0,1)).normalized()
+	add_to_group(Globals.DESTRUCTIBLE_GROUP)
 
 func _process(delta):
-	pass
+	if is_dead:
+		return
 	
 func _physics_process(delta):
-#	$MeshPivot/Armature/Skeleton/SkeletonIK.start()
+	if is_dead:
+		return
 	
 	var space_state = get_world().direct_space_state
-	var result = space_state.intersect_ray(global_transform.origin+Vector3(0,1,0),player.global_transform.origin,[self])
+	var result = space_state.intersect_ray(global_transform.origin+Vector3(0,0,0),player.global_transform.origin+Vector3(0,-1,0),[self])
 	$DebugLabel.text = ''
 	var aim_position = Vector3.ZERO
 	if result:
@@ -102,3 +108,11 @@ func change_aim_down_sights_progress(delta_ads):
 		$MeshPivot/Armature/Skeleton/SkeletonIK.start()
 	else:
 		$MeshPivot/Armature/Skeleton/SkeletonIK.stop()
+
+func destroy(body,blast_origin):
+	print('thug destroy!')
+	die()
+	
+
+func die():
+	is_dead = true

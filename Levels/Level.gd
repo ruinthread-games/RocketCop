@@ -83,7 +83,6 @@ func generate_level():
 				var wall_instance = wall_segment_base.instance()
 				cell_parent.add_child(wall_instance)
 				wall_instance.set_owner(get_tree().edited_scene_root)
-				print(wall_instance.my_awesome_variable)
 				wall_instance.row = ind_row
 				wall_instance.col = ind_col
 				wall_instance.layer = ind_layer

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://PlayerCharacter/Projectile/Projectile.gd" type="Script" id=1]
 
@@ -12,12 +12,32 @@ height = 0.2
 [sub_resource type="SpatialMaterial" id=3]
 albedo_color = Color( 1, 0, 0, 1 )
 
+[sub_resource type="SphereShape" id=4]
+radius = 1.50176
+
 [node name="Projectile" type="RigidBody"]
+collision_mask = 7
+contacts_reported = 1
+contact_monitor = true
 script = ExtResource( 1 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 shape = SubResource( 1 )
 
-[node name="MeshInstance" type="MeshInstance" parent="."]
+[node name="GrenadeMesh" type="MeshInstance" parent="."]
 mesh = SubResource( 2 )
 material/0 = SubResource( 3 )
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+
+[node name="BlastRadius" type="Area" parent="."]
+collision_mask = 7
+
+[node name="CollisionShape" type="CollisionShape" parent="BlastRadius"]
+shape = SubResource( 4 )
+
+[node name="ExplosionTimer" type="Timer" parent="."]
+wait_time = 0.1
+one_shot = true
+
+[connection signal="body_entered" from="." to="." method="_on_Projectile_body_entered"]

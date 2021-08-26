@@ -41,7 +41,8 @@ var jetpack_charge : float = 1.0
 var JETPACK_DEPLETION_RATE : float = 0.5
 var JETPACK_RECHARGE_RATE : float = 0.5
 
-onready var jetpack_charge_bar = $PlayerUI/JetpackCharge
+onready var jetpack_charge_bar = $PlayerUI/StatusBarContainer/JetpackCharge
+onready var health_bar = $PlayerUI/StatusBarContainer/HealthBar
 
 var aim_down_sights_progress : float = 0.0
 var AIM_DOWN_SIGHTS_SPEED : float = 2.0
@@ -50,6 +51,10 @@ var UNAIM_DOWN_SIGHTS_SPEED : float = 4.0
 var GRENADES_PER_CLIP = 6
 var ammo_in_clip = GRENADES_PER_CLIP
 onready var projectile_base = load("res://PlayerCharacter/Projectile/Projectile.tscn")
+
+var is_dead = false
+const MAX_HEALTH = 1.0
+var current_health = MAX_HEALTH
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
@@ -106,6 +111,8 @@ func _ready():
 	
 func _process(delta):
 #	create_master_animations()
+	if is_dead:
+		return
 	if Engine.editor_hint:
 		return
 	set_camera_follow()
@@ -116,6 +123,8 @@ func _process(delta):
 #	$DebugLabel.text = str('u/d vel: ',up_down_movement.y)
 	
 func _physics_process(delta):
+	if is_dead:
+		return
 	if Engine.editor_hint:
 		return
 	calculate_velocity(delta)
@@ -137,6 +146,16 @@ func recharge_jetpack(delta):
 func change_jetpack_charge(delta_charge):
 	jetpack_charge = clamp(jetpack_charge + delta_charge, -1.0, 1.0)
 	jetpack_charge_bar.value = jetpack_charge
+	
+func change_health(delta_health):
+	current_health = clamp(current_health + delta_health, 0, MAX_HEALTH)
+	if current_health + delta_health == 0:
+		die()
+	health_bar.value = current_health
+	health_bar.max_value = MAX_HEALTH
+	
+func die():
+	is_dead = true
 	
 func set_camera_follow():
 	camera_pivot.follow_me(translation + camera_offset)
