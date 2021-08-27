@@ -38,6 +38,7 @@ func PlayJetFly(jetpackplayer):
 	if isRocketing:
 		jetpackplayer.stream = streams[1]
 		jetpackplayer.play()
+		
 
 func PlayJetDisengage(jetpackplayer):
 	pass
@@ -55,13 +56,14 @@ func _get_input():
 		isRocketing = true
 		PlayJetFly(jetpackplayer)
 	
-	if Input.is_action_just_released("engage_jetpack"):
+	if Input.is_action_just_released("engage_jetpack") || player.jetpack_charge <= 0:
 		jetpackplayer.stop()
 		isRocketing = false
 	
 	if Input.is_action_just_pressed("fire_grenade") && player.aim_down_sights_progress == 1:
 		if player.ammo_in_clip > 0:
 			PlayFireGrenade(gunplayer)
+			
 	
 	# if the gunplayer is not stopped it will stay in the 'play' state and loop the gun sound
 

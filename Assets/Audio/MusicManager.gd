@@ -4,7 +4,7 @@ extends Node
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
-var file_paths = ["Assets/Audio/menu sketch 1.ogg", "Assets/Audio/mii.ogg"]
+var file_paths = ["Assets/Audio/Mus_Menu_01.ogg", "Assets/Audio/Mus_RocketCop_Action_01.ogg"]
 var streams = Array()
 var idx_song
 var curr_vol
