@@ -2,12 +2,12 @@
 
 importer="ogg_vorbis"
 type="AudioStreamOGGVorbis"
-path="res://.import/spotted2.ogg-5e3970d40602dac1f6ba48b87904fefb.oggstr"
+path="res://.import/spotted2.ogg-f4d9c0a9d789ba143dada156d691161b.oggstr"
 
 [deps]
 
-source_file="res://Assets/Audio/spotted2.ogg"
-dest_files=[ "res://.import/spotted2.ogg-5e3970d40602dac1f6ba48b87904fefb.oggstr" ]
+source_file="res://Assets/Audio/old/spotted2.ogg"
+dest_files=[ "res://.import/spotted2.ogg-f4d9c0a9d789ba143dada156d691161b.oggstr" ]
 
 [params]
 

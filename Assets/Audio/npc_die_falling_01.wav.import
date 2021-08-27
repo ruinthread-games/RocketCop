@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/npc_die_falling_01.wav-a43cda65b3531935558997fca9f07b39.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/npc_die_falling_01.wav"
+dest_files=[ "res://.import/npc_die_falling_01.wav-a43cda65b3531935558997fca9f07b39.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

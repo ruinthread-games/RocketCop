@@ -39,7 +39,7 @@ const BOUNCE_FORCE : float = 20.0
 
 var jetpack_charge : float = 1.0
 var JETPACK_DEPLETION_RATE : float = 0.5
-var JETPACK_RECHARGE_RATE : float = 0.5
+var JETPACK_RECHARGE_RATE : float = 0.45
 
 onready var jetpack_charge_bar = $PlayerUI/StatusBarContainer/JetpackCharge
 onready var health_bar = $PlayerUI/StatusBarContainer/HealthBar
@@ -47,14 +47,18 @@ onready var health_bar = $PlayerUI/StatusBarContainer/HealthBar
 var aim_down_sights_progress : float = 0.0
 var AIM_DOWN_SIGHTS_SPEED : float = 2.0
 var UNAIM_DOWN_SIGHTS_SPEED : float = 4.0
+var AIM_DOWN_SIGHTS_LOST_ON_HIT : float = 0.1
 
 var GRENADES_PER_CLIP = 6
 var ammo_in_clip = GRENADES_PER_CLIP
 onready var projectile_base = load("res://PlayerCharacter/Projectile/Projectile.tscn")
 
-var is_dead = false
-const MAX_HEALTH = 1.0
-var current_health = MAX_HEALTH
+var is_dead : bool = false
+const MAX_HEALTH : float = 1.0
+var current_health : float = MAX_HEALTH
+var is_regenerating_health : bool = true
+const HEALTH_LOST_ON_HIT : float = -0.1
+const HEALTH_REGENERATION_RATE : float = 0.25
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
@@ -108,6 +112,8 @@ func _init():
 func _ready():
 	camera_pivot.set_as_toplevel(true)
 	mesh.connect("bounce",self,"on_bounce")
+	$HealthRegenerationTimer.connect("timeout",self,"on_health_regeneration_timer_timeout")
+	$ReloadTimer.connect("timeout",self,"on_reload_timer_timeout")
 	
 func _process(delta):
 #	create_master_animations()
@@ -115,6 +121,10 @@ func _process(delta):
 		return
 	if Engine.editor_hint:
 		return
+		
+	if is_regenerating_health:
+		change_health(HEALTH_REGENERATION_RATE * delta)
+		
 	set_camera_follow()
 	get_camera_transform()
 	update_run_speed()
@@ -127,6 +137,7 @@ func _physics_process(delta):
 		return
 	if Engine.editor_hint:
 		return
+	$DebugLabel2.text = str('u/d movment: ', up_down_movement)
 	calculate_velocity(delta)
 	find_velocity_facing_direction()
 	find_acceleration()
@@ -138,6 +149,8 @@ func _physics_process(delta):
 	rotate_towards_acceleration(delta)
 	rotate_towards_velocity(delta)
 	blend_idle_run()
+	up_down_movement.x = 0
+	up_down_movement.z = 0
 	
 func recharge_jetpack(delta):
 	if not Input.is_action_pressed("engage_jetpack"):
@@ -149,7 +162,7 @@ func change_jetpack_charge(delta_charge):
 	
 func change_health(delta_health):
 	current_health = clamp(current_health + delta_health, 0, MAX_HEALTH)
-	if current_health + delta_health == 0:
+	if current_health == 0:
 		die()
 	health_bar.value = current_health
 	health_bar.max_value = MAX_HEALTH
@@ -188,7 +201,7 @@ func change_ammo_in_clip(delta_ammo):
 	$PlayerUI/Crosshair/AmmoLabel.text = str(ammo_in_clip)
 	
 func reload():
-	change_ammo_in_clip(GRENADES_PER_CLIP)
+	$ReloadTimer.start()
 
 func fire_grenade():
 	if aim_down_sights_progress == 1:
@@ -282,3 +295,16 @@ func on_bounce(my_mesh):
 		if velocity.length() > BOUNCE_THRESHOLD:
 			up_down_movement.y = BOUNCE_FORCE / velocity.length()
 			move_and_slide(up_down_movement,Vector3.UP)
+
+func register_hit():
+	change_aim_down_sights_progress(AIM_DOWN_SIGHTS_LOST_ON_HIT)
+	change_health(HEALTH_LOST_ON_HIT)
+	print('register hit on player, cur health ', current_health)
+	$HealthRegenerationTimer.start()
+	is_regenerating_health = false
+
+func on_health_regeneration_timer_timeout():
+	is_regenerating_health = true
+	
+func on_reload_timer_timeout():
+	change_ammo_in_clip(GRENADES_PER_CLIP)

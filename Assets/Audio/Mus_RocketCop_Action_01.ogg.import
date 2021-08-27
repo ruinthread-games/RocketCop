@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Mus_RocketCop_Action_01.ogg-1af1da52da4ba7746d1cc9bfede7d473.oggstr"
+
+[deps]
+
+source_file="res://Assets/Audio/Mus_RocketCop_Action_01.ogg"
+dest_files=[ "res://.import/Mus_RocketCop_Action_01.ogg-1af1da52da4ba7746d1cc9bfede7d473.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

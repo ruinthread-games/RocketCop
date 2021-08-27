@@ -59,7 +59,7 @@ func _get_input():
 		jetpackplayer.stop()
 		isRocketing = false
 	
-	if Input.is_action_just_pressed("fire_grenade") && Input.is_action_pressed("aim_down_sights"):
+	if Input.is_action_just_pressed("fire_grenade") && player.aim_down_sights_progress == 1:
 		if player.ammo_in_clip > 0:
 			PlayFireGrenade(gunplayer)
 	
