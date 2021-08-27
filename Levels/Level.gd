@@ -65,12 +65,10 @@ func get_cardinal_neighbours(cell):
 func cell_below_is_occupied(row,col,layer):
 	return to_key(row,col,layer-1) in cell_index_dict
 
-func generate_structure(offset_indices : Vector3):
+func generate_structure(offset_indices : Vector3,num_rows : float,num_cols : float,num_layers : float):
 	var rooftop_indices : Array = []
 	
-	var num_layers = int(rand_range(3,6))
-	var num_rows = int(rand_range(3,7))
-	var num_cols = int(rand_range(3,7))
+	
 	print('gen structure of dims: ', num_rows, '-',num_cols,'-', num_layers)
 	for ind_row in range(offset_indices.x-1, offset_indices.x + num_rows+1):
 		for ind_col in range(offset_indices.z-1, offset_indices.z + num_cols +1):
@@ -134,23 +132,29 @@ func generate_level():
 	for child in cell_parent.get_children():
 		child.queue_free()
 	
-	for i in range(5):
+	if true:
+		var rooftop_indices = generate_structure(Vector3(0,0,0),1,1,8)
+		Globals.current_player.global_transform.origin = spatial_index_to_coord(rooftop_indices[0].x,rooftop_indices[0].z,rooftop_indices[0].y)
+	
+	for i in range(4):
 		for j in range(1):
+			var num_layers = int(rand_range(2,5))
+			var num_rows = int(rand_range(3,5))
+			var num_cols = int(rand_range(3,5))
+			
 			var random_offset = Vector3(int(rand_range(0,3)),0,int(rand_range(-GRID_WIDTH,GRID_WIDTH)))
-			var grid_offset = Vector3(GRID_WIDTH*i,0,GRID_WIDTH*j) + random_offset
-			var rooftop_indices = generate_structure(grid_offset)
-			if i == 0 and j == 0:
-				Globals.current_player.global_transform.origin = spatial_index_to_coord(rooftop_indices[0].x,rooftop_indices[0].z,rooftop_indices[0].y)
-			else:
-				var num_enemies : int = int(rand_range(0.3 * len(rooftop_indices), 0.75*len(rooftop_indices)))
-				print('platform ', i, ' w. ', len(rooftop_indices), ' rooftop tiles gets ', num_enemies, ' enemies')
-				var occupied_indices = []
-				while len(occupied_indices) < num_enemies:
-					var random_rooftop_index = randi() % len(rooftop_indices)
-					if not random_rooftop_index in occupied_indices:
-						occupied_indices.push_back(random_rooftop_index)
-						var rooftop_index = rooftop_indices[random_rooftop_index]
-						spawn_enemy(rooftop_index)
+			var grid_offset = Vector3(GRID_WIDTH*(i+1),0,GRID_WIDTH*j) + random_offset
+			var rooftop_indices = generate_structure(grid_offset,num_rows,num_cols,num_layers)
+			
+			var num_enemies : int = int(rand_range(0.2 * len(rooftop_indices), 0.6*len(rooftop_indices)))
+			print('platform ', i, ' w. ', len(rooftop_indices), ' rooftop tiles gets ', num_enemies, ' enemies')
+			var occupied_indices = []
+			while len(occupied_indices) < num_enemies:
+				var random_rooftop_index = randi() % len(rooftop_indices)
+				if not random_rooftop_index in occupied_indices:
+					occupied_indices.push_back(random_rooftop_index)
+					var rooftop_index = rooftop_indices[random_rooftop_index]
+					spawn_enemy(rooftop_index)
 					
 	for cell in cell_list:
 		var cardinal_neighbours = get_cardinal_neighbours(cell)

@@ -1,5 +1,7 @@
 extends KinematicBody
 
+var capture_mouse : bool = false
+
 onready var player_mesh_pivot : Spatial = $MeshPivot
 onready var mesh : Spatial = $MeshPivot/Armature
 onready var animation_tree : AnimationTree = $MeshPivot/AnimationTree
@@ -193,6 +195,12 @@ func get_input(delta):
 		
 	if Input.is_action_just_pressed("reload"):
 		reload()
+		
+func _input(event):
+	if event is InputEventMouseButton:
+		if not capture_mouse:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+			capture_mouse = true
 	
 	
 
