@@ -3,7 +3,7 @@ extends RigidBody
 var is_exploded : bool = false
 var barrel_transform : Transform
 
-const MUZZLE_VELOCITY : float = 100.0
+const MUZZLE_VELOCITY : float = 50.0
 
 func _ready():
 	$AudioStreamPlayer3D.stream = load("res://Assets/Audio/extremely_carefully_crafted_grenade_explosion_sound.ogg")
