@@ -8,6 +8,7 @@ onready var player = get_node("../..") # player node
 # audio stream players
 var jetpackplayer
 var gunplayer
+onready var thrustplayer = get_child(2)
 
 var player_velocity
 var isAirborn
@@ -32,6 +33,7 @@ func _ready():
 
 func PlayJetEngage(jetpackplayer):
 	jetpackplayer.stream = streams[0]
+	jetpackplayer.stream.loop = false
 	jetpackplayer.play()
 
 func PlayJetFly(jetpackplayer):
@@ -42,8 +44,16 @@ func PlayJetFly(jetpackplayer):
 
 func PlayJetDisengage(jetpackplayer):
 	pass
+
+func ModJetPitch(streamplayer):
+	# is updated every frame depending on what the charge is at for the jetpack
+	# AudioServer is how you access the audio busses
+	var ratio = player.jetpack_charge 
+	#print("Ptch ratio = %.2f" % ratio  )
+	AudioServer.get_bus_effect(3,0).set_pitch_scale(float(ratio))
+
+
 func PlayFireGrenade(gunplayer):
-	
 	gunplayer.stream = streams[2]
 	gunplayer.stream.loop = false
 	gunplayer.play()
@@ -52,7 +62,7 @@ func _get_input():
 	#jetpack sounds
 	if Input.is_action_just_pressed("engage_jetpack"):
 		
-		PlayJetEngage(jetpackplayer)
+		PlayJetEngage(thrustplayer)
 		isRocketing = true
 		PlayJetFly(jetpackplayer)
 	
@@ -72,4 +82,5 @@ func _get_input():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	_get_input()
+	ModJetPitch(jetpackplayer)
 	
