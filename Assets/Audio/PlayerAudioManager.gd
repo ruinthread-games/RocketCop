@@ -47,7 +47,7 @@ func PlayJetDisengage(jetpackplayer):
 
 func ModJetPitch(streamplayer):
 	# is updated every frame depending on what the charge is at for the jetpack
-	# AudioServer is how you access the audio busses
+	# AudioServer is how you access the audio busses	
 	var ratio = player.jetpack_charge 
 	#print("Ptch ratio = %.2f" % ratio  )
 	AudioServer.get_bus_effect(3,0).set_pitch_scale(float(ratio))

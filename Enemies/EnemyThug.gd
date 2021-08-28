@@ -12,6 +12,7 @@ onready var enemy_mesh_pivot : Spatial = $MeshPivot
 onready var animation_tree : AnimationTree = $MeshPivot/AnimationTree
 
 onready var projectile_base = load("res://Enemies/Projectile/Projectile.tscn")
+onready var gunshot_stream = load("res://Assets/Audio/Gunshot.ogg")
 
 var player : KinematicBody
 
@@ -133,6 +134,8 @@ func fire_at_player():
 	get_parent().add_child(fired_projectile)
 	can_shoot = false
 	$ShootingTimer.start()
+	$GunshotPlayer.play()
+	
 
 func on_shooting_timer_timeout():
 	can_shoot = true
