@@ -156,7 +156,7 @@ func generate_level():
 					occupied_indices.push_back(random_rooftop_index)
 					var rooftop_index = rooftop_indices[random_rooftop_index]
 					spawn_enemy(rooftop_index)
-					
+	
 	for cell in cell_list:
 		var cardinal_neighbours = get_cardinal_neighbours(cell)
 		var needs_wall_segment  = [false,false,false,false]
@@ -179,6 +179,8 @@ func _on_Area_body_entered(body):
 	if body == Globals.current_player:
 		body.die()
 	else:
+		if body.is_in_group(Globals.ENEMY_GROUP):
+			body.die()
 		if not body.get_parent().get_parent().is_in_group(Globals.FOUNDATION_GROUP):
 			print(body.get_name(),' hit kill plane, remove')
 			body.queue_free()

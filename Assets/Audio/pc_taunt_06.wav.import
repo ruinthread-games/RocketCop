@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/pc_taunt_06.wav-d096f94c313ee96cc25fe421700592e1.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/pc_taunt_06.wav"
+dest_files=[ "res://.import/pc_taunt_06.wav-d096f94c313ee96cc25fe421700592e1.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

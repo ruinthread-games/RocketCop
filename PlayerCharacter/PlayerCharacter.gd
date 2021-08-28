@@ -293,7 +293,7 @@ func calculate_velocity(delta):
 		velocity = velocity.linear_interpolate(Vector3.ZERO,ACCELERATION_RATE * delta)
 
 func find_velocity_facing_direction():
-	if velocity != Vector3.ZERO:
+	if velocity != Vector3.ZERO and velocity.length() != 0.0:
 		rotation_transform = mesh.transform.looking_at(-velocity,Vector3.UP)
 		
 	if aim_down_sights_progress == 1:

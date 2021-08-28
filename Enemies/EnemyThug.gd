@@ -188,8 +188,11 @@ func _ready():
 	$ProjectileTimeOfFlightTimer.connect("timeout",self,"on_projecitle_time_of_flight_timer_timeout")
 	$DebugLabel.rect_position = Vector2(900, 100 + 20 * thug_index)
 	toggle_xray(false)
+	$RunningDirectionUpdateTimer.connect("timeout",self,"on_running_direction_update_timer_timeout")
+	# desynchronise timers
+	$RunningDirectionUpdateTimer.wait_time = (thug_index + 1) * 0.05
+	$RunningDirectionUpdateTimer.start()
 	
-
 func _process(delta):
 	if is_dead:
 		return
@@ -208,6 +211,11 @@ func _process(delta):
 				fire_at_player()
 		STATE_RUNNING:
 			change_aim_down_sights_progress(LOST_PLAYER_AIM_RATE * delta)
+
+func on_running_direction_update_timer_timeout():
+	$RunningDirectionUpdateTimer.wait_time = 0.5
+	if not update_running_direction():
+		change_threat_level(-1)
 
 func update_running_direction():
 	direction = Vector3.ZERO
@@ -259,7 +267,7 @@ func on_projecitle_time_of_flight_timer_timeout():
 	if player_is_visible:
 		var hit_probability = rand_range(0,1)
 		var range_check = exp(-0.1*distance_to_player)
-		print('check hit prob', hit_probability, ' against', range_check, ' for dist', distance_to_player)
+		#print('check hit prob', hit_probability, ' against', range_check, ' for dist', distance_to_player)
 		if hit_probability < range_check:
 			Globals.current_player.register_hit()
 
@@ -278,8 +286,7 @@ func _physics_process(delta):
 		apply_gravity(delta)
 		return
 	
-	if not update_running_direction():
-		change_threat_level(-1)
+	
 	calculate_velocity(delta)
 	find_velocity_facing_direction()
 	find_acceleration()
@@ -351,7 +358,7 @@ func calculate_velocity(delta):
 		velocity = velocity.linear_interpolate(Vector3.ZERO,ACCELERATION_RATE * delta)
 
 func find_velocity_facing_direction():
-	if velocity != Vector3.ZERO:
+	if velocity != Vector3.ZERO and velocity.length() != 0.0:
 		rotation_transform = mesh.transform.looking_at(-velocity,Vector3.UP)
 
 func rotate_towards_velocity(delta):
@@ -404,12 +411,15 @@ func destroy(body,blast_origin):
 	die()
 
 func die():
+	if is_dead:
+		return
 	is_dead = true
 	death_tween = Tween.new()
 	add_child(death_tween)
 	death_tween.connect("tween_all_completed",self,"on_death_tween_complete")
 	death_tween.interpolate_property($MeshPivot/AnimationTree,"parameters/DeathBlend/blend_amount",0,1,DEATH_TWEEN_DURATION,Tween.TRANS_LINEAR,Tween.EASE_IN,0)
 	death_tween.start()
+	$RunningDirectionUpdateTimer.stop()
 	Globals.living_thugs -= 1
 
 func on_death_tween_complete():

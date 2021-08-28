@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/npc_target_spotted_14.wav-e987f776299b11a14c5f72dd2768cf53.sample"
+
+[deps]
+
+source_file="res://Assets/Audio/npc_target_spotted_14.wav"
+dest_files=[ "res://.import/npc_target_spotted_14.wav-e987f776299b11a14c5f72dd2768cf53.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

@@ -14,7 +14,7 @@ var current_level = "res://Levels/TestLevel.tscn"
 
 enum { FIRE_MODE_HITSCAN, FIRE_MODE_PROJECTILES }
 
-var enemy_fire_mode = FIRE_MODE_HITSCAN
+var enemy_fire_mode = FIRE_MODE_PROJECTILES
 
 func _init():
 	pass

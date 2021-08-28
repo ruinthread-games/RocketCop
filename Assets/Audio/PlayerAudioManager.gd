@@ -53,7 +53,7 @@ func ModJetPitch(streamplayer):
 	# AudioServer is how you access the audio busses	
 	var ratio = player.jetpack_charge 
 	#print("Ptch ratio = %.2f" % ratio  )
-	AudioServer.get_bus_effect(3,0).set_pitch_scale(float(ratio))
+	AudioServer.get_bus_effect(3,0).set_pitch_scale(max(0.0,float(ratio)))
 
 
 func PlayFireGrenade(gunplayer):
