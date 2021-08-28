@@ -33,7 +33,7 @@ mesh = SubResource( 2 )
 material/0 = SubResource( 3 )
 
 [node name="ExpirationTimer" type="Timer" parent="."]
-wait_time = 5.0
+wait_time = 2.0
 one_shot = true
 
 [connection signal="body_entered" from="." to="." method="_on_RigidBody_body_entered"]
