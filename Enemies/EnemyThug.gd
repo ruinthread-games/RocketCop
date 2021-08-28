@@ -1,11 +1,12 @@
 tool
 extends KinematicBody
 
-enum { STATE_IDLE, STATE_ATTACKING, STATE_RUNNING }
+enum { STATE_IDLE, STATE_ATTACKING, STATE_RUNNING, STATE_DEAD }
 var current_state = STATE_IDLE
 
 var can_shoot : bool = true
 var aim_down_sights_progress : float = 0.0
+const MAX_SIGHT_RANGE : float = 200.0
 var player_is_visible : bool = false
 onready var mesh : Spatial = $MeshPivot/Armature
 onready var enemy_mesh_pivot : Spatial = $MeshPivot
@@ -18,12 +19,12 @@ var player : KinematicBody
 
 var aim_bias : Vector3
 
-const AIM_BIAS_BASE_MAGNITUDE :float = 4.0
+const AIM_BIAS_BASE_MAGNITUDE :float = 2.0
 
 const TARGET_PLAYER_AIM_RATE :float = 0.5
 const LOST_PLAYER_AIM_RATE :float = -1.0
 
-const RUNNING_SPEED : float = 25.0
+const RUNNING_SPEED : float = 15.0
 
 var direction_forward_axis : Vector3
 var direction_side_axis :Vector3
@@ -51,6 +52,18 @@ var is_dead = false
 var thug_index : int
 
 var death_tween : Tween = null
+const DEATH_TWEEN_DURATION : float = 1.0
+
+var threat_level : float = 0.0
+const EXPLOSION_THREAT_INCREASE_RATE : float = 100.0
+const SEES_PLAYER_THREAT_DECREASE_RATE : float = -0.01
+const LOST_PLAYER_THREAT_DECREASE_RATE : float = -0.1
+const THREAT_RETREAT_THRESHOLD : float = 0.7
+
+var threat_location = null
+
+const MOVEMENT_LENGTH = 10.0
+const MAXIMUM_SAFE_DROP_HEIGHT = 25.0
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming","TPose","GrenadeBlast","Dead"]
@@ -109,13 +122,67 @@ func create_master_animations():
 			grenade_blast_animation.loop = false
 			$MeshPivot/AnimationPlayer.add_animation("GrenadeBlastMaster",grenade_blast_animation)
 
+func randomise_appearance():
+	print('randomise thug appearance')
+	randomize()
+	var head_covering = ['Beret','Hoodie','Mohawk']
+	var random_head_covering = head_covering[randi() % len(head_covering)]
+	$MeshPivot/Armature/Skeleton/Beret.visible = false
+	$MeshPivot/Armature/Skeleton/Hoodie.visible = false
+	$MeshPivot/Armature/Skeleton/Mohawk.visible = false
+	
+	match random_head_covering:
+		'Beret':
+			$MeshPivot/Armature/Skeleton/Beret.visible = true
+		'Hoodie':
+			$MeshPivot/Armature/Skeleton/Hoodie.visible = true
+		'Mohawk':
+			$MeshPivot/Armature/Skeleton/Mohawk.visible = true
+	$MeshPivot/Armature/Skeleton/Sunglasses.visible = rand_range(0,1) < 0.5
+	$MeshPivot/Armature/Skeleton/Beard.visible = rand_range(0,1) < 0.5
+	
+	#pants / skin / jacket / trimming
+	var colours = [Color(1,0,0),Color(0,1,0),Color(0,0,1),Color(1,1,0)]
+	var pants_colours = [Color('#C5FFFD'),Color('#88D9E6'),Color('#8B8BAE'),Color('#526760'),Color('#374B4A')]
+	var skin_colours = [Color('#8D5524'),Color('#C68642'),Color('#E0AC69'),Color('#F1C27D'),Color('#FFDBAC')]
+	var jacket_colours = [Color('#121420'),Color('#1B2432'),Color('#403233'),Color('#272727'),Color('#520F00')]
+	var shoe_sole_colours = [Color('17A398'),Color('#3F88C5'),Color('#E94F37')]
+	
+	for i in range($MeshPivot/Armature/Skeleton/Goon.mesh.get_surface_count()):
+		var material : Material = $MeshPivot/Armature/Skeleton/Goon.mesh.surface_get_material(i).duplicate()
+		if i == 0:
+			material.albedo_color = pants_colours[randi() % len(pants_colours)]
+		if i == 1:
+			material.albedo_color = skin_colours[randi() % len(skin_colours)]
+			var ear_material : Material = $MeshPivot/Armature/Skeleton/Ears.mesh.surface_get_material(0).duplicate()
+			ear_material.albedo_color = material.albedo_color
+			$MeshPivot/Armature/Skeleton/Ears.set_surface_material(0,ear_material)
+		if i == 2:
+			material.albedo_color = jacket_colours[randi() % len(jacket_colours)]
+			if random_head_covering == 'Hoodie':
+				var hoodie_material = $MeshPivot/Armature/Skeleton/Hoodie.mesh.surface_get_material(0).duplicate()
+				hoodie_material.albedo_color = material.albedo_color
+				$MeshPivot/Armature/Skeleton/Hoodie.set_surface_material(0,hoodie_material)
+			if random_head_covering == 'Beret':
+				var beret_material = $MeshPivot/Armature/Skeleton/Beret.mesh.surface_get_material(0).duplicate()
+				beret_material.albedo_color = material.albedo_color
+				$MeshPivot/Armature/Skeleton/Beret.set_surface_material(0,beret_material)
+		if i == 3:
+			material.albedo_color = shoe_sole_colours[randi() % len(shoe_sole_colours)]
+		$MeshPivot/Armature/Skeleton/Goon.set_surface_material(i,material)
+	
+
 func _ready():
 	create_master_animations()
+	randomise_appearance()
 	player = Globals.current_player
 	change_aim_down_sights_progress(0)
 	aim_bias = AIM_BIAS_BASE_MAGNITUDE * Vector3(rand_range(0,1),rand_range(0,1),rand_range(0,1)).normalized()
 	add_to_group(Globals.DESTRUCTIBLE_GROUP)
+	add_to_group(Globals.ENEMY_GROUP)
 	$ShootingTimer.connect("timeout",self,"on_shooting_timer_timeout")
+	$DebugLabel.rect_position = Vector2(900, 100 + 20 * thug_index)
+	toggle_xray(false)
 	
 
 func _process(delta):
@@ -123,8 +190,50 @@ func _process(delta):
 		return
 	
 	if player_is_visible:
-		if can_shoot:
-			fire_at_player()
+		change_threat_level(SEES_PLAYER_THREAT_DECREASE_RATE * delta)
+	else:
+		change_threat_level(LOST_PLAYER_THREAT_DECREASE_RATE)
+		
+	match current_state:
+		STATE_IDLE:
+			change_aim_down_sights_progress(LOST_PLAYER_AIM_RATE * delta)
+		STATE_ATTACKING:
+			change_aim_down_sights_progress(TARGET_PLAYER_AIM_RATE * delta)
+			if can_shoot:
+				fire_at_player()
+		STATE_RUNNING:
+			change_aim_down_sights_progress(LOST_PLAYER_AIM_RATE * delta)
+
+func update_running_direction():
+	direction = Vector3.ZERO
+	var directions = []
+	if threat_level > THREAT_RETREAT_THRESHOLD and threat_location:
+		var to_threat = threat_location - global_transform.origin
+		to_threat.y = 0
+		to_threat = to_threat.normalized()
+		# backwards
+		directions.append(-to_threat)
+		# flank left
+		directions.append(to_threat.cross(Vector3.UP))
+		# flank right
+		directions.append(to_threat.cross(Vector3.DOWN))
+	elif threat_level > THREAT_RETREAT_THRESHOLD:
+		directions.append(global_transform.basis.z)
+		directions.append(global_transform.basis.x)
+		directions.append(-global_transform.basis.x)
+		directions.append(-global_transform.basis.z)
+		
+	for direction_to_test in directions:
+		var space_state = get_world().direct_space_state
+		var target_point = global_transform.origin+ MOVEMENT_LENGTH*direction_to_test
+		var horizontal_collision = space_state.intersect_ray(global_transform.origin+Vector3(0,0,0),target_point,[self])
+		if not horizontal_collision:
+			var vertical_collision = space_state.intersect_ray(target_point, target_point - Vector3(0,MAXIMUM_SAFE_DROP_HEIGHT,0))
+			if vertical_collision:
+				$RunningTarget.global_transform.origin = target_point
+				direction = direction_to_test
+				return true
+	return false
 
 func fire_at_player():
 	var fired_projectile = projectile_base.instance()
@@ -151,6 +260,8 @@ func _physics_process(delta):
 		apply_gravity(delta)
 		return
 	
+	if not update_running_direction():
+		change_threat_level(-1)
 	calculate_velocity(delta)
 	find_velocity_facing_direction()
 	find_acceleration()
@@ -164,26 +275,43 @@ func _physics_process(delta):
 	up_down_movement.x = 0
 	up_down_movement.z = 0
 	
-	var space_state = get_world().direct_space_state
-	var result = space_state.intersect_ray(global_transform.origin+Vector3(0,0,0),player.global_transform.origin+Vector3(0,-1,0),[self])
-	$DebugLabel.text = ''
-	var aim_position = Vector3.ZERO
-	if result:
-		aim_position = result.position + (1-aim_down_sights_progress) * aim_bias
-		$RayCastTarget.global_transform.origin = aim_position#result.position
-		player_is_visible = result.collider == player
-		$DebugLabel.text = str(result.collider.get_name()) 
-	else:
-		$RayCastTarget.global_transform.origin = global_transform.origin
+	var aim_position = to_global(Vector3(0,0,1))
+	if global_transform.origin.distance_to(player.global_transform.origin) < MAX_SIGHT_RANGE:
+		var space_state = get_world().direct_space_state
+		var result = space_state.intersect_ray(global_transform.origin+Vector3(0,0,0),player.global_transform.origin+Vector3(0,-1,0),[self])
+		$DebugLabel.text = ''
+		if result:
+			aim_position = result.position + (1-aim_down_sights_progress) * aim_bias
+			$RayCastTarget.global_transform.origin = aim_position#result.position
+			player_is_visible = result.collider == player
+			$DebugLabel.text = str(result.collider.get_name()) 
+		else:
+			$RayCastTarget.global_transform.origin = global_transform.origin
 		
-	change_aim_down_sights_progress(TARGET_PLAYER_AIM_RATE * delta if player_is_visible else LOST_PLAYER_AIM_RATE * delta)
+		var to_player = to_local(aim_position)
+		var to_player_xz = to_player
+		#$SpineIK.global_transform.origin = player.global_transform.origin + Vector3(0,7,0) # $SpineIK.transform.origin#looking_at(-to_player,Vector3.UP)
+		to_player_xz.y = 0
+		if current_state == STATE_ATTACKING:
+			mesh.transform = mesh.transform.looking_at(-to_player_xz,Vector3.UP)
+			$SpineIK.transform = $SpineIK.transform.looking_at(-to_player,Vector3.UP)
+	else:
+		player_is_visible = false
+		
 	$DebugLabel.text += str('aim: ', aim_down_sights_progress)
-	var to_player = to_local(aim_position)
-	var to_player_xz = to_player
-	#$SpineIK.global_transform.origin = player.global_transform.origin + Vector3(0,7,0) # $SpineIK.transform.origin#looking_at(-to_player,Vector3.UP)
-	to_player_xz.y = 0
-	mesh.transform = mesh.transform.looking_at(-to_player_xz,Vector3.UP)
-	$SpineIK.transform = $SpineIK.transform.looking_at(-to_player,Vector3.UP)
+	$DebugLabel.text += str('threat: ', threat_level)
+	$DebugLabel.text += str('state: ', get_state_label())
+	
+	
+		
+
+func toggle_xray(new_xray):
+	if new_xray:
+		$MeshPivot/Armature/Skeleton/Goon.visible = false
+		$MeshPivot/Armature/Skeleton/XrayGoon.visible = true
+	else:
+		$MeshPivot/Armature/Skeleton/Goon.visible = true
+		$MeshPivot/Armature/Skeleton/XrayGoon.visible = false
 
 func change_aim_down_sights_progress(delta_ads):
 	aim_down_sights_progress = clamp(aim_down_sights_progress + delta_ads, 0.0, 1.0)
@@ -261,8 +389,45 @@ func die():
 	death_tween = Tween.new()
 	add_child(death_tween)
 	death_tween.connect("tween_all_completed",self,"on_death_tween_complete")
-	death_tween.interpolate_property($MeshPivot/AnimationTree,"parameters/DeathBlend/blend_amount",0,1,2,Tween.TRANS_LINEAR,Tween.EASE_IN,0)
+	death_tween.interpolate_property($MeshPivot/AnimationTree,"parameters/DeathBlend/blend_amount",0,1,DEATH_TWEEN_DURATION,Tween.TRANS_LINEAR,Tween.EASE_IN,0)
 	death_tween.start()
+	Globals.living_thugs -= 1
 
 func on_death_tween_complete():
-	print('finish death tween, yo!')
+	pass
+
+func change_threat_level(delta_threat):
+	threat_level = clamp(threat_level + delta_threat, 0, 1.0)
+	
+	if player_is_visible and threat_level < THREAT_RETREAT_THRESHOLD:
+		change_state(STATE_ATTACKING)
+	elif threat_level < THREAT_RETREAT_THRESHOLD:
+		change_state(STATE_IDLE)
+	elif threat_level >= THREAT_RETREAT_THRESHOLD:
+		change_state(STATE_RUNNING)
+
+func change_state(new_state):
+	current_state = new_state
+
+func get_state_label():
+	match current_state:
+		STATE_ATTACKING:
+			return 'attacking'
+		STATE_IDLE:
+			return 'idle'
+		STATE_RUNNING:
+			return 'running'
+		STATE_DEAD:
+			return 'dead'
+	return 'invalid'
+
+func alert_to_explosion(explosion_location):
+	var explosion_distance = global_transform.origin.distance_to(explosion_location)
+	var threat_from_explosion = EXPLOSION_THREAT_INCREASE_RATE / pow(explosion_distance,2.0)
+	change_threat_level(threat_from_explosion)
+	if threat_location:
+		if threat_location.distance_to(global_transform.origin) > explosion_distance:
+			threat_location = explosion_location
+	else:
+		threat_location = explosion_location
+	$ThreatLocationIndicator.global_transform.origin = threat_location

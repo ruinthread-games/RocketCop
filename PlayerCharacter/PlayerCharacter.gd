@@ -62,6 +62,8 @@ var is_regenerating_health : bool = true
 const HEALTH_LOST_ON_HIT : float = -0.1
 const HEALTH_REGENERATION_RATE : float = 0.25
 
+var xray_is_on : bool = false
+
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
 	
@@ -116,9 +118,11 @@ func _ready():
 	mesh.connect("bounce",self,"on_bounce")
 	$HealthRegenerationTimer.connect("timeout",self,"on_health_regeneration_timer_timeout")
 	$ReloadTimer.connect("timeout",self,"on_reload_timer_timeout")
+	set_xray(false)
 	
 func _process(delta):
 #	create_master_animations()
+	update_ui()
 	if is_dead:
 		return
 	if Engine.editor_hint:
@@ -153,6 +157,10 @@ func _physics_process(delta):
 	blend_idle_run()
 	up_down_movement.x = 0
 	up_down_movement.z = 0
+	
+func update_ui():
+	$PlayerUI/StatusBarContainer/CollateralDamageLabel.text = str('Collateral damage caused: ', Globals.collateral_damage_caused*1000.0, '$')
+	$PlayerUI/StatusBarContainer/ThugsLeftLabel.text = str('Thugs left alive: ', Globals.living_thugs, '/', Globals.total_thugs)
 	
 func recharge_jetpack(delta):
 	if not Input.is_action_pressed("engage_jetpack"):
@@ -195,8 +203,21 @@ func get_input(delta):
 		
 	if Input.is_action_just_pressed("reload"):
 		reload()
+	
+
+func toggle_xray():
+	set_xray(not xray_is_on)
+
+func set_xray(new_xray):
+	xray_is_on = new_xray
+	for enemy in get_tree().get_nodes_in_group(Globals.ENEMY_GROUP):
+		enemy.toggle_xray(xray_is_on)
+	$PlayerUI/XRayOverlay.visible = xray_is_on
 		
 func _input(event):
+	if event.is_action_pressed("ToggleXRAY"):
+		toggle_xray()
+		
 	if event is InputEventMouseButton:
 		if not capture_mouse:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -278,7 +299,9 @@ func blend_idle_run():
 		animation_tree.set("parameters/IdleRunBlend/blend_amount",0)
 
 func apply_jetpack(delta):
+	$MeshPivot/Armature/Skeleton/JetpackBoneAttachment/RightThrusterParticles.get_process_material().damping = 10.0
 	if Input.is_action_pressed("engage_jetpack"):
+		$MeshPivot/Armature/Skeleton/JetpackBoneAttachment/RightThrusterParticles.get_process_material().damping = 10.0 * pow(1.0 - jetpack_charge,2.0)
 		if jetpack_charge > 0:
 			up_down_movement.y += JETPACK_ACCELERATION * delta
 		elif jetpack_charge > -0.25:
@@ -286,7 +309,7 @@ func apply_jetpack(delta):
 		up_down_movement.y = clamp(up_down_movement.y,TERMINAL_GRAVITY_VELOCITY_Y,TERMINAL_JETPACK_VELOCITY_Y)
 		up_down_movement = move_and_slide(up_down_movement,Vector3.UP)
 		change_jetpack_charge(- JETPACK_DEPLETION_RATE * delta)
-		
+	
 
 func apply_gravity(delta):
 	$DebugLabel.text = str('is on floor: ', is_on_floor())

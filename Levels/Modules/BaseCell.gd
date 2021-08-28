@@ -17,3 +17,4 @@ func destroy(body, blast_origin):
 		if body == static_body:
 			child.visible = false
 			static_body.get_child(0).disabled = true
+			Globals.collateral_damage_caused += 1

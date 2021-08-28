@@ -16,7 +16,9 @@ onready var enemy_parent = $SpawnedEnemies
 var cell_index_dict = {}
 var cell_list = []
 
-var needs_generate_level = true
+var needs_generate_level : bool = true
+
+var enemy_index : int = 0
 
 func _ready():
 	generate_level()
@@ -120,9 +122,11 @@ func generate_structure(offset_indices : Vector3,num_rows : float,num_cols : flo
 
 func spawn_enemy(spatial_index):
 	var enemy_instance = enemy_thug_base.instance()
-	enemy_instance.global_transform.origin = spatial_index_to_coord(spatial_index.x,spatial_index.z,spatial_index.y)
+	enemy_instance.global_transform.origin = spatial_index_to_coord(spatial_index.x,spatial_index.z,spatial_index.y) + Vector3(rand_range(-0.5*CELL_WIDTH,0.5*CELL_WIDTH),0,rand_range(-0.5*CELL_WIDTH,0.5*CELL_WIDTH))
+	enemy_instance.thug_index = enemy_index
 	enemy_parent.add_child(enemy_instance)
 	enemy_instance.set_owner(get_tree().edited_scene_root)
+	enemy_index += 1
 
 func generate_level():
 	print('generating level')
@@ -135,6 +139,7 @@ func generate_level():
 	if true:
 		var rooftop_indices = generate_structure(Vector3(0,0,0),1,1,8)
 		Globals.current_player.global_transform.origin = spatial_index_to_coord(rooftop_indices[0].x,rooftop_indices[0].z,rooftop_indices[0].y)
+	enemy_index = 0
 	
 	for i in range(4):
 		for j in range(1):
@@ -162,6 +167,9 @@ func generate_level():
 		for i in range(4):
 			needs_wall_segment[i] = true if cardinal_neighbours[i] != null else false
 		cell.update(needs_wall_segment)
+		
+	Globals.total_thugs = enemy_index
+	Globals.living_thugs = enemy_index
 
 func _process(delta):
 	pass
