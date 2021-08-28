@@ -177,3 +177,12 @@ func _process(delta):
 #		if needs_generate_level:
 #			generate_level()
 #			needs_generate_level = false
+
+
+func _on_Area_body_entered(body):
+	if body == Globals.current_player:
+		body.die()
+	else:
+		if not body.get_parent().get_parent().is_in_group(Globals.FOUNDATION_GROUP):
+			print(body.get_name(),' hit kill plane, remove')
+			body.queue_free()

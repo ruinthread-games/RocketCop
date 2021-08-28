@@ -31,7 +31,7 @@ particles_anim_v_frames = 1
 particles_anim_loop = false
 albedo_texture = ExtResource( 2 )
 
-[sub_resource type="QuadMesh" id=11]
+[sub_resource type="QuadMesh" id=6]
 
 [node name="Projectile" type="RigidBody"]
 collision_mask = 7
@@ -68,7 +68,7 @@ one_shot = true
 explosiveness = 0.96
 randomness = 1.0
 process_material = ExtResource( 4 )
-draw_pass_1 = SubResource( 11 )
+draw_pass_1 = SubResource( 6 )
 
 [node name="SecondaryExplosionParticles" type="Particles" parent="."]
 material_override = SubResource( 5 )
@@ -79,6 +79,6 @@ one_shot = true
 explosiveness = 0.63
 randomness = 1.0
 process_material = ExtResource( 3 )
-draw_pass_1 = SubResource( 11 )
+draw_pass_1 = SubResource( 6 )
 
 [connection signal="body_entered" from="." to="." method="_on_Projectile_body_entered"]

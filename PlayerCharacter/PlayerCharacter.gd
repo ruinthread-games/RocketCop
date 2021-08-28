@@ -118,10 +118,11 @@ func _ready():
 	mesh.connect("bounce",self,"on_bounce")
 	$HealthRegenerationTimer.connect("timeout",self,"on_health_regeneration_timer_timeout")
 	$ReloadTimer.connect("timeout",self,"on_reload_timer_timeout")
+	$DeathTimer.connect("timeout",self,"on_death_timer_timeout")
 	set_xray(false)
+	$PlayerUI/DeathMessage.visible = false
 	
 func _process(delta):
-#	create_master_animations()
 	update_ui()
 	if is_dead:
 		return
@@ -178,7 +179,14 @@ func change_health(delta_health):
 	health_bar.max_value = MAX_HEALTH
 	
 func die():
+	if is_dead:
+		return
+	$PlayerUI/DeathMessage.visible = true
+	$DeathTimer.start()
 	is_dead = true
+	
+func on_death_timer_timeout():
+	get_tree().change_scene(Globals.current_level)
 	
 func set_camera_follow():
 	camera_pivot.follow_me(translation + camera_offset)
@@ -330,7 +338,7 @@ func on_bounce(my_mesh):
 func register_hit():
 	change_aim_down_sights_progress(AIM_DOWN_SIGHTS_LOST_ON_HIT)
 	change_health(HEALTH_LOST_ON_HIT)
-	print('register hit on player, cur health ', current_health)
+#	print('register hit on player, cur health ', current_health)
 	$HealthRegenerationTimer.start()
 	is_regenerating_health = false
 
