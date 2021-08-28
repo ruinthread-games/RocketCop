@@ -213,7 +213,7 @@ func _process(delta):
 			change_aim_down_sights_progress(LOST_PLAYER_AIM_RATE * delta)
 
 func on_running_direction_update_timer_timeout():
-	$RunningDirectionUpdateTimer.wait_time = 0.5
+	$RunningDirectionUpdateTimer.wait_time = 0.1
 	if not update_running_direction():
 		change_threat_level(-1)
 

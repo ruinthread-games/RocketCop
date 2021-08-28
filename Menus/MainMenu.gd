@@ -20,4 +20,4 @@ func _on_StartGameButton_button_up():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	$VBoxContainer.visible = false
 	Globals.current_player.start_game()
-	
+	$Title.visible = false

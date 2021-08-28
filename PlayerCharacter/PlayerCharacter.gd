@@ -232,6 +232,7 @@ func get_input(delta):
 		
 	if Input.is_action_just_pressed("reload"):
 		reload()
+		
 	
 
 func toggle_xray():
@@ -252,6 +253,8 @@ func _input(event):
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 			capture_mouse = true
 	
+	if event.is_action_pressed("toggle_how_to"):
+		$PlayerUI/HowToPlay.visible = not $PlayerUI/HowToPlay.visible
 	
 
 func change_ammo_in_clip(delta_ammo):
