@@ -71,6 +71,7 @@ func start_game():
 	mouse_control_camera = true
 	set_ui_visible(true)
 	game_started = true
+	$DialogueTimer.start()
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
@@ -127,9 +128,11 @@ func _ready():
 	$HealthRegenerationTimer.connect("timeout",self,"on_health_regeneration_timer_timeout")
 	$ReloadTimer.connect("timeout",self,"on_reload_timer_timeout")
 	$DeathTimer.connect("timeout",self,"on_death_timer_timeout")
+	$DialogueTimer.connect("timeout",self,"on_dialogue_timer_timeout")
 	set_xray(false)
 	$PlayerUI/DeathMessage.visible = false
 	set_ui_visible(false)
+	
 	
 func set_ui_visible(new_visible):
 	$PlayerUI.visible = new_visible
@@ -189,6 +192,7 @@ func change_health(delta_health):
 		die()
 	health_bar.value = current_health
 	health_bar.max_value = MAX_HEALTH
+	$MeshPivot/PlayerAudioManager.player_health_changed()
 	
 func die():
 	$PlayerUI/StatusBarContainer.visible = false
@@ -199,6 +203,7 @@ func die():
 	$PlayerUI/DeathMessage.visible = true
 	$DeathTimer.start()
 	is_dead = true
+	$MeshPivot/PlayerAudioManager.PlayPlayerDeath()
 	
 func on_death_timer_timeout():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -363,3 +368,9 @@ func on_health_regeneration_timer_timeout():
 	
 func on_reload_timer_timeout():
 	change_ammo_in_clip(GRENADES_PER_CLIP)
+
+func on_dialogue_timer_timeout():
+	$MeshPivot/PlayerAudioManager.PlayPlayerTauntEnemy()
+	$DialogueTimer.wait_time = rand_range(5,30)
+	if Globals.living_thugs > 0:
+		$DialogueTimer.start()
