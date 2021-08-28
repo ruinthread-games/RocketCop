@@ -12,12 +12,26 @@ var total_thugs : int
 
 var current_level = "res://Levels/TestLevel.tscn"
 
+var main_menu = null
+var settings_menu = null
+var music_manager = null
+
 enum { FIRE_MODE_HITSCAN, FIRE_MODE_PROJECTILES }
 
 var enemy_fire_mode = FIRE_MODE_PROJECTILES
+
+var level_index = 0
 
 func _init():
 	pass
 	
 func _enter_tree():
 	pass
+
+func register_thug_death():
+	living_thugs -= 1
+	if living_thugs == 0:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		current_player.mouse_control_camera = false
+		current_player.set_ui_visible(false)
+		main_menu.trigger_victory()

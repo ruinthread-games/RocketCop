@@ -72,6 +72,7 @@ func start_game():
 	set_ui_visible(true)
 	game_started = true
 	$DialogueTimer.start()
+#	set_gif_mode()
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
@@ -233,7 +234,7 @@ func get_input(delta):
 	if Input.is_action_just_pressed("reload"):
 		reload()
 		
-	
+
 
 func toggle_xray():
 	set_xray(not xray_is_on)
@@ -377,3 +378,8 @@ func on_dialogue_timer_timeout():
 	$DialogueTimer.wait_time = rand_range(5,30)
 	if Globals.living_thugs > 0:
 		$DialogueTimer.start()
+
+func set_gif_mode():
+	$PlayerUI/StatusBarContainer.visible = false
+	$PlayerUI/HowToPlayPrompt.visible = false
+	$PlayerUI/TitleLabel.visible = true

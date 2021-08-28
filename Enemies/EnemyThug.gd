@@ -69,6 +69,23 @@ const MAXIMUM_SAFE_DROP_HEIGHT = 25.0
 
 const HITSCAN_MUZZLE_VELOCITY = 300.0
 
+var thug_death_streams = []
+var thug_fall_death_streams = []
+var thug_target_spotted_streams = []
+var thug_taunt_streams = []
+
+var can_play_voiceline = true
+
+func load_thug_voicelines():
+	for i in range(11):
+		thug_death_streams.append(load("res://Assets/Audio/npc_die_%02d.wav" % (i+1)))
+	for i in range(5):
+		thug_fall_death_streams.append(load("res://Assets/Audio/npc_die_falling_%02d.wav" % (i+1)))
+	for i in range(14):
+		thug_target_spotted_streams.append(load("res://Assets/Audio/npc_target_spotted_%02d.wav" % (i+1)))
+	for i in range(7):
+		thug_taunt_streams.append(load("res://Assets/Audio/npc_taunt_%02d.wav" % (i+1)))
+
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming","TPose","GrenadeBlast","Dead"]
 	
@@ -179,6 +196,7 @@ func randomise_appearance():
 func _ready():
 	create_master_animations()
 	randomise_appearance()
+	load_thug_voicelines()
 	player = Globals.current_player
 	change_aim_down_sights_progress(0)
 	aim_bias = AIM_BIAS_BASE_MAGNITUDE * Vector3(rand_range(0,1),rand_range(0,1),rand_range(0,1)).normalized()
@@ -192,6 +210,9 @@ func _ready():
 	# desynchronise timers
 	$RunningDirectionUpdateTimer.wait_time = (thug_index + 1) * 0.05
 	$RunningDirectionUpdateTimer.start()
+	
+	$VoiceLineTimer.connect("timeout",self,"on_voiceline_timer_timeout")
+	
 	
 func _process(delta):
 	if is_dead:
@@ -286,6 +307,8 @@ func _physics_process(delta):
 		apply_gravity(delta)
 		return
 	
+	if check_for_impending_fall_death():
+		play_fall_death_voiceline()
 	
 	calculate_velocity(delta)
 	find_velocity_facing_direction()
@@ -308,8 +331,12 @@ func _physics_process(delta):
 		$DebugLabel.text = ''
 		if result:
 			aim_position = result.position + (1-aim_down_sights_progress) * aim_bias
-			$RayCastTarget.global_transform.origin = aim_position#result.position
+			$RayCastTarget.global_transform.origin = aim_position
+			var previous_player_is_visible = player_is_visible
 			player_is_visible = result.collider == player
+			
+			if player_is_visible and not previous_player_is_visible:
+				play_target_spotted_voiceline()
 			$DebugLabel.text = str(result.collider.get_name()) 
 		else:
 			$RayCastTarget.global_transform.origin = global_transform.origin
@@ -420,13 +447,19 @@ func die():
 	death_tween.interpolate_property($MeshPivot/AnimationTree,"parameters/DeathBlend/blend_amount",0,1,DEATH_TWEEN_DURATION,Tween.TRANS_LINEAR,Tween.EASE_IN,0)
 	death_tween.start()
 	$RunningDirectionUpdateTimer.stop()
-	Globals.living_thugs -= 1
+	Globals.register_thug_death()
+	play_death_voiceline()
 
 func on_death_tween_complete():
 	pass
 
 func change_threat_level(delta_threat):
+	var previous_threat_level =threat_level
+	
 	threat_level = clamp(threat_level + delta_threat, 0, 1.0)
+	
+	if previous_threat_level > THREAT_RETREAT_THRESHOLD and threat_level < THREAT_RETREAT_THRESHOLD:
+		play_taunt_voiceline()
 	
 	if player_is_visible and threat_level < THREAT_RETREAT_THRESHOLD:
 		change_state(STATE_ATTACKING)
@@ -460,3 +493,34 @@ func alert_to_explosion(explosion_location):
 	else:
 		threat_location = explosion_location
 	$ThreatLocationIndicator.global_transform.origin = threat_location
+
+func check_for_impending_fall_death() -> bool:
+	var space_state = get_world().direct_space_state
+	var target_point = global_transform.origin - Vector3(0,100,0)
+	var result = space_state.intersect_ray(global_transform.origin+Vector3(0,0,0),target_point,[self])
+	if result:
+		return false
+	else:
+		return true
+
+func play_death_voiceline():
+	$VoiceLinePlayer.stream = thug_death_streams[randi() % len(thug_death_streams)]
+	$VoiceLinePlayer.play()
+
+func play_taunt_voiceline():
+	$VoiceLinePlayer.stream = thug_taunt_streams[randi() % len(thug_taunt_streams)]
+	$VoiceLinePlayer.play()
+	
+func play_fall_death_voiceline():
+	$VoiceLinePlayer.stream = thug_fall_death_streams[randi() % len(thug_fall_death_streams)]
+	$VoiceLinePlayer.play()
+	
+func play_target_spotted_voiceline():
+	if distance_to_player < 30 and rand_range(0,1) < 0.4:
+		$VoiceLinePlayer.stream = thug_target_spotted_streams[randi() % len(thug_target_spotted_streams)]
+		$VoiceLinePlayer.play()
+	can_play_voiceline = false
+	$VoiceLineTimer.start()
+
+func on_voiceline_timer_timeout():
+	can_play_voiceline = true

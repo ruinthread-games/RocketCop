@@ -11,7 +11,13 @@ var curr_vol
 var max_vol
 var streamplayer
 var rocketing = false # bool
-# Called when the node enters the scene tree for the first time.
+
+var fade_out_tween = null
+var queued_track_index = null
+
+func _init():
+	Globals.music_manager = self
+
 func _ready():
 	print("\nloading music...")
 	streamplayer = get_child(0)
@@ -23,11 +29,27 @@ func _ready():
 			
 	PlayMusic(0)
 
+func on_fadeout_completed(obj,key):
+	print('fading into next track')
+	streamplayer.stop()
+	streamplayer.volume_db = curr_vol
+	fade_out_tween.queue_free()
+	streamplayer.stream = streams[queued_track_index]
+	streamplayer.play()
 
 func PlayMusic(idx):
-	idx_song = idx
-	streamplayer.stream = streams[idx]
-	streamplayer.play()
+	if streamplayer.is_playing():
+		fade_out_tween = Tween.new()
+		add_child(fade_out_tween)
+		fade_out_tween.connect("tween_completed",self,"on_fadeout_completed")
+		curr_vol = streamplayer.volume_db
+		fade_out_tween.interpolate_property(streamplayer,"volume_db",streamplayer.volume_db,streamplayer.volume_db-50,5)
+		fade_out_tween.start()
+		queued_track_index = idx
+	else:
+		idx_song = idx
+		streamplayer.stream = streams[idx]
+		streamplayer.play()
 
 # unhandled input function is called like late update in Unity
 

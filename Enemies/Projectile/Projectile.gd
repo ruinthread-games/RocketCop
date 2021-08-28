@@ -31,4 +31,5 @@ func _on_RigidBody_body_entered(body):
 	if body != marksman:
 		queue_free()
 	if body == Globals.current_player:
+		marksman.play_taunt_voiceline()
 		body.register_hit()

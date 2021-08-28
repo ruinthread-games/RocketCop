@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Menus/MainMenu.gd" type="Script" id=1]
 [ext_resource path="res://Fonts/TitleFont.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Fonts/TitleFontSmaller.tres" type="DynamicFont" id=3]
 
 [node name="MainMenu" type="Spatial"]
 script = ExtResource( 1 )
@@ -24,11 +25,18 @@ margin_right = 293.0
 margin_bottom = 56.0
 text = "Start game"
 
-[node name="Button2" type="Button" parent="VBoxContainer"]
+[node name="RestartGameButton" type="Button" parent="VBoxContainer"]
+visible = false
 margin_top = 60.0
 margin_right = 293.0
 margin_bottom = 116.0
-text = "Settings/controls"
+text = "Play some more!"
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer"]
+margin_top = 60.0
+margin_right = 293.0
+margin_bottom = 116.0
+text = "Settings"
 
 [node name="Title" type="Label" parent="."]
 anchor_left = 0.5
@@ -43,4 +51,22 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Victory" type="Label" parent="."]
+visible = false
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -760.5
+margin_top = -56.5
+margin_right = 760.5
+margin_bottom = 56.5
+custom_fonts/font = ExtResource( 3 )
+text = "All thugs eliminated"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [connection signal="button_up" from="VBoxContainer/StartGameButton" to="." method="_on_StartGameButton_button_up"]
+[connection signal="button_up" from="VBoxContainer/RestartGameButton" to="." method="_on_RestartGameButton_button_up"]
+[connection signal="button_up" from="VBoxContainer/SettingsButton" to="." method="_on_SettingsButton_button_up"]
