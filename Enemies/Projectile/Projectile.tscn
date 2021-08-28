@@ -32,4 +32,8 @@ transform = Transform( 1.91069e-15, 4.37114e-08, -1, -8.74228e-08, -1, -4.37114e
 mesh = SubResource( 2 )
 material/0 = SubResource( 3 )
 
+[node name="ExpirationTimer" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+
 [connection signal="body_entered" from="." to="." method="_on_RigidBody_body_entered"]

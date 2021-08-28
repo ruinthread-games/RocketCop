@@ -9,9 +9,14 @@ func _ready():
 	$AudioStreamPlayer3D.stream = load("res://Assets/Audio/extremely_carefully_crafted_grenade_explosion_sound.ogg")
 	$AudioStreamPlayer3D.connect("finished", self, "on_explosion_SFX_finished")
 	$ExplosionTimer.connect("timeout",self,"on_explosion_timer_timeout")
+	$ExpirationTimer.connect("timeout",self,"on_expiration_timer_timout")
 	
 	$PrimaryExplosionParticles.one_shot = true
 	$SecondaryExplosionParticles.one_shot = true
+	$ExpirationTimer.start()
+
+func on_expiration_timer_timeout():
+	queue_free()
 
 func set_barrel_transform(transform : Transform):
 	barrel_transform = transform

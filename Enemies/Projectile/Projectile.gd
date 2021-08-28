@@ -16,7 +16,11 @@ func set_marksman(marksman_in):
 	marksman = marksman_in
 	
 func _ready():
-	pass # Replace with function body.
+	$ExpirationTimer.connect("timeout",self,"on_expiration_timer_timeout")
+	$ExpirationTimer.start()
+
+func on_expiration_timer_timeout():
+	queue_free()
 
 func _process(delta):
 	if barrel_transform.origin.distance_squared_to(global_transform.origin) > DESPAWN_DISTANCE_THRESHOLD * DESPAWN_DISTANCE_THRESHOLD:

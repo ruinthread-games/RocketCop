@@ -58,6 +58,9 @@ shape = SubResource( 4 )
 wait_time = 0.01
 one_shot = true
 
+[node name="ExpirationTimer" type="Timer" parent="."]
+wait_time = 10.0
+
 [node name="PrimaryExplosionParticles" type="Particles" parent="."]
 material_override = SubResource( 5 )
 cast_shadow = 0

@@ -137,7 +137,7 @@ func generate_level():
 		child.queue_free()
 	
 	if true:
-		var rooftop_indices = generate_structure(Vector3(0,0,0),1,1,8)
+		var rooftop_indices = generate_structure(Vector3(0,0,0),2,2,8)
 		Globals.current_player.global_transform.origin = spatial_index_to_coord(rooftop_indices[0].x,rooftop_indices[0].z,rooftop_indices[0].y)
 	enemy_index = 0
 	
