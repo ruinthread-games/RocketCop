@@ -9,14 +9,14 @@ gradient = SubResource( 1 )
 
 [sub_resource type="Curve" id=3]
 max_value = 100.0
-_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.235294, 100 ), 0.0, 0.0, 0, 0 ]
+_data = [ Vector2( 0.478431, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.839216, 100 ), 0.0, 0.0, 0, 0 ]
 
 [sub_resource type="CurveTexture" id=4]
 curve = SubResource( 3 )
 
 [sub_resource type="Curve" id=5]
-max_value = 100.0
-_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.0862745, 29.6591 ), 0.0, 0.0, 0, 0, Vector2( 0.223529, 3.29546 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
+max_value = 10.0
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.137255, 9.60227 ), 0.0, 0.0, 0, 0, Vector2( 0.45098, 5.32955 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
 
 [sub_resource type="CurveTexture" id=6]
 curve = SubResource( 5 )
@@ -28,19 +28,19 @@ _data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.208122, 0.136364 ), 0.0, 0
 curve = SubResource( 7 )
 
 [resource]
-trail_divisor = 4
+trail_divisor = 6
 emission_shape = 1
 emission_sphere_radius = 0.1
 spread = 0.0
 gravity = Vector3( 0, 0, 0 )
-angular_velocity = 10.0
+angular_velocity = 1.0
 angular_velocity_random = 0.47
-radial_accel = 30.0
+radial_accel = 1.0
 radial_accel_curve = SubResource( 6 )
-damping = 100.0
+damping = 3.65
 damping_random = 0.53
 damping_curve = SubResource( 4 )
-scale = 50.0
+scale = 10.0
 scale_random = 0.29
 scale_curve = SubResource( 8 )
 color_ramp = SubResource( 2 )

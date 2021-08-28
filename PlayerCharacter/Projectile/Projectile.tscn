@@ -78,6 +78,7 @@ material_override = SubResource( 5 )
 cast_shadow = 0
 emitting = false
 amount = 1000
+lifetime = 0.7
 one_shot = true
 explosiveness = 0.63
 randomness = 1.0
