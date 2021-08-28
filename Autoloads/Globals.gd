@@ -12,6 +12,10 @@ var total_thugs : int
 
 var current_level = "res://Levels/TestLevel.tscn"
 
+enum { FIRE_MODE_HITSCAN, FIRE_MODE_PROJECTILES }
+
+var enemy_fire_mode = FIRE_MODE_HITSCAN
+
 func _init():
 	pass
 	

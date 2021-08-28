@@ -63,6 +63,14 @@ const HEALTH_LOST_ON_HIT : float = -0.1
 const HEALTH_REGENERATION_RATE : float = 0.25
 
 var xray_is_on : bool = false
+var mouse_control_camera : bool = false
+
+var game_started : bool = false
+
+func start_game():
+	mouse_control_camera = true
+	set_ui_visible(true)
+	game_started = true
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming"]
@@ -121,6 +129,10 @@ func _ready():
 	$DeathTimer.connect("timeout",self,"on_death_timer_timeout")
 	set_xray(false)
 	$PlayerUI/DeathMessage.visible = false
+	set_ui_visible(false)
+	
+func set_ui_visible(new_visible):
+	$PlayerUI.visible = new_visible
 	
 func _process(delta):
 	update_ui()
@@ -179,6 +191,9 @@ func change_health(delta_health):
 	health_bar.max_value = MAX_HEALTH
 	
 func die():
+	$PlayerUI/StatusBarContainer.visible = false
+	$PlayerUI/Crosshair.visible = false
+	$PlayerUI/XRayOverlay.visible = false
 	if is_dead:
 		return
 	$PlayerUI/DeathMessage.visible = true
@@ -186,6 +201,7 @@ func die():
 	is_dead = true
 	
 func on_death_timer_timeout():
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	get_tree().change_scene(Globals.current_level)
 	
 func set_camera_follow():
@@ -227,7 +243,7 @@ func _input(event):
 		toggle_xray()
 		
 	if event is InputEventMouseButton:
-		if not capture_mouse:
+		if game_started and not capture_mouse:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 			capture_mouse = true
 	

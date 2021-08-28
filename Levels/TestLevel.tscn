@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Levels/Level.gd" type="Script" id=1]
 [ext_resource path="res://PlayerCharacter/PlayerCharacter.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Menus/MainMenu.tscn" type="PackedScene" id=3]
 
 [sub_resource type="ProceduralSky" id=1]
 sky_top_color = Color( 0.7544, 0.87308, 0.92, 1 )
@@ -47,5 +48,7 @@ shadow_enabled = true
 [node name="CollisionShape" type="CollisionShape" parent="Area"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -200, 0 )
 shape = SubResource( 3 )
+
+[node name="MainMenu" parent="." instance=ExtResource( 3 )]
 
 [connection signal="body_entered" from="Area" to="." method="_on_Area_body_entered"]

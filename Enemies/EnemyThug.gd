@@ -21,6 +21,8 @@ var aim_bias : Vector3
 
 const AIM_BIAS_BASE_MAGNITUDE :float = 2.0
 
+var distance_to_player : float
+
 const TARGET_PLAYER_AIM_RATE :float = 0.5
 const LOST_PLAYER_AIM_RATE :float = -1.0
 
@@ -64,6 +66,8 @@ var threat_location = null
 
 const MOVEMENT_LENGTH = 10.0
 const MAXIMUM_SAFE_DROP_HEIGHT = 25.0
+
+const HITSCAN_MUZZLE_VELOCITY = 300.0
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming","TPose","GrenadeBlast","Dead"]
@@ -181,6 +185,7 @@ func _ready():
 	add_to_group(Globals.DESTRUCTIBLE_GROUP)
 	add_to_group(Globals.ENEMY_GROUP)
 	$ShootingTimer.connect("timeout",self,"on_shooting_timer_timeout")
+	$ProjectileTimeOfFlightTimer.connect("timeout",self,"on_projecitle_time_of_flight_timer_timeout")
 	$DebugLabel.rect_position = Vector2(900, 100 + 20 * thug_index)
 	toggle_xray(false)
 	
@@ -236,15 +241,28 @@ func update_running_direction():
 	return false
 
 func fire_at_player():
-	var fired_projectile = projectile_base.instance()
-	fired_projectile.global_transform = $MeshPivot/Armature/Skeleton/GunBarrelBoneAttachment/Spatial.global_transform
-	fired_projectile.set_barrel_transform($MeshPivot/Armature/Skeleton/GunBarrelBoneAttachment/Spatial.global_transform)
-	fired_projectile.set_marksman(self)
-	get_parent().add_child(fired_projectile)
+	if Globals.enemy_fire_mode == Globals.FIRE_MODE_PROJECTILES:
+		var fired_projectile = projectile_base.instance()
+		fired_projectile.global_transform = $MeshPivot/Armature/Skeleton/GunBarrelBoneAttachment/Spatial.global_transform
+		fired_projectile.set_barrel_transform($MeshPivot/Armature/Skeleton/GunBarrelBoneAttachment/Spatial.global_transform)
+		fired_projectile.set_marksman(self)
+		get_parent().add_child(fired_projectile)
+	else:
+		$ProjectileTimeOfFlightTimer.wait_time = distance_to_player / HITSCAN_MUZZLE_VELOCITY
+		$ProjectileTimeOfFlightTimer.start()
 	can_shoot = false
-	$ShootingTimer.start()
 	$GunshotPlayer.play()
+	$ShootingTimer.start()
 	
+	
+func on_projecitle_time_of_flight_timer_timeout():
+	if player_is_visible:
+		var hit_probability = rand_range(0,1)
+		var range_check = exp(-0.1*distance_to_player)
+		print('check hit prob', hit_probability, ' against', range_check, ' for dist', distance_to_player)
+		if hit_probability < range_check:
+			Globals.current_player.register_hit()
+
 
 func on_shooting_timer_timeout():
 	can_shoot = true
@@ -276,7 +294,8 @@ func _physics_process(delta):
 	up_down_movement.z = 0
 	
 	var aim_position = to_global(Vector3(0,0,1))
-	if global_transform.origin.distance_to(player.global_transform.origin) < MAX_SIGHT_RANGE:
+	distance_to_player = global_transform.origin.distance_to(player.global_transform.origin)
+	if distance_to_player < MAX_SIGHT_RANGE:
 		var space_state = get_world().direct_space_state
 		var result = space_state.intersect_ray(global_transform.origin+Vector3(0,0,0),player.global_transform.origin+Vector3(0,-1,0),[self])
 		$DebugLabel.text = ''

@@ -22,10 +22,6 @@ var enemy_index : int = 0
 
 func _ready():
 	generate_level()
-	if Engine.editor_hint:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	else:
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 
 func _input(event):
