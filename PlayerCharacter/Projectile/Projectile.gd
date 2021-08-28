@@ -6,7 +6,7 @@ var barrel_transform : Transform
 const MUZZLE_VELOCITY : float = 50.0
 
 func _ready():
-	$AudioStreamPlayer3D.stream = load("res://Assets/Audio/extremely_carefully_crafted_grenade_explosion_sound.ogg")
+	$AudioStreamPlayer3D.stream = load("res://Assets/Audio/eexplode.ogg")
 	$AudioStreamPlayer3D.connect("finished", self, "on_explosion_SFX_finished")
 	$ExplosionTimer.connect("timeout",self,"on_explosion_timer_timeout")
 	$ExpirationTimer.connect("timeout",self,"on_expiration_timer_timout")
