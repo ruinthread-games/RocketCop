@@ -6,9 +6,9 @@ var jet_start
 onready var player = get_node("../..") # player node
 
 # audio stream players
-var jetpackplayer
-var gunplayer
-onready var thrustplayer = get_child(2)
+onready var thrustplayer = $ThrustPlayer
+onready var jetpackplayer = $JetPlayer
+onready var gunplayer = $GunPlayer
 
 var player_velocity
 var isAirborn
@@ -16,19 +16,22 @@ var isRocketing
 var file_paths = ["Assets/Audio/jet_engage.ogg", "Assets/Audio/jet_fly.ogg", "Assets/Audio/shoot_grenade.ogg"]
 var streams = Array()
 
+var jet_engage_audio = null
+var jet_fly_audio = null
+var shoot_grenade_audio = null
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	
 	print("\nloading player audio...")
 	
-	jetpackplayer = get_child(0)
-	gunplayer = get_child(1)
+	
+	streams = []
 	
 	for i in range(file_paths.size()):
-		if File.new().file_exists(file_paths[i]):
-			print("...found %s [%s]" % [file_paths[i], String(i)])
-			var audio = load(file_paths[i]) 
-			streams.append(audio)
+		print("...found %s [%s]" % [file_paths[i], String(i)])
+		var audio = load(file_paths[i]) 
+		streams.append(audio)
 
 
 func PlayJetEngage(jetpackplayer):

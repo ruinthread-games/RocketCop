@@ -122,10 +122,10 @@ func generate_structure(offset_indices : Vector3,num_rows : float,num_cols : flo
 
 func spawn_enemy(spatial_index):
 	var enemy_instance = enemy_thug_base.instance()
-	enemy_instance.global_transform.origin = spatial_index_to_coord(spatial_index.x,spatial_index.z,spatial_index.y) + Vector3(rand_range(-0.5*CELL_WIDTH,0.5*CELL_WIDTH),0,rand_range(-0.5*CELL_WIDTH,0.5*CELL_WIDTH))
-	enemy_instance.thug_index = enemy_index
 	enemy_parent.add_child(enemy_instance)
 	enemy_instance.set_owner(get_tree().edited_scene_root)
+	enemy_instance.global_transform.origin = spatial_index_to_coord(spatial_index.x,spatial_index.z,spatial_index.y) + Vector3(rand_range(-0.5*CELL_WIDTH,0.5*CELL_WIDTH),0,rand_range(-0.5*CELL_WIDTH,0.5*CELL_WIDTH))
+	enemy_instance.thug_index = enemy_index
 	enemy_index += 1
 
 func generate_level():

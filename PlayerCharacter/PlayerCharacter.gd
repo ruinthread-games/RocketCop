@@ -237,9 +237,9 @@ func fire_grenade():
 		if ammo_in_clip > 0:
 			change_ammo_in_clip(-1)
 			var fired_projectile = projectile_base.instance()
+			get_parent().add_child(fired_projectile)
 			fired_projectile.global_transform.origin = $MeshPivot/Armature/Skeleton/GrenadeLauncherBarrelBoneAttachment/Spatial.global_transform.origin
 			fired_projectile.set_barrel_transform($MeshPivot/Armature/Skeleton/GrenadeLauncherBarrelBoneAttachment/Spatial.global_transform)
-			get_parent().add_child(fired_projectile)
 
 func change_aim_down_sights_progress(delta_ads):
 	aim_down_sights_progress = clamp(aim_down_sights_progress + delta_ads, 0.0, 1.0)

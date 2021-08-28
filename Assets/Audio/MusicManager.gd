@@ -16,10 +16,10 @@ func _ready():
 	print("\nloading music...")
 	streamplayer = get_child(0)
 	for i in range(file_paths.size()):
-		if File.new().file_exists(file_paths[i]):
-			print("...found %s [%s]" % [file_paths[i], String(i)])
-			var audio = load(file_paths[i]) 
-			streams.append(audio) # streams appends the loaded file stream
+#		if File.new().file_exists(file_paths[i]):
+		print("...found %s [%s]" % [file_paths[i], String(i)])
+		var audio = load(file_paths[i]) 
+		streams.append(audio) # streams appends the loaded file stream
 			
 	PlayMusic(0)
 
