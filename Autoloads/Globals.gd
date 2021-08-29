@@ -28,6 +28,9 @@ var enemy_fire_mode = FIRE_MODE_PROJECTILES
 
 var level_index = 0
 
+var cut_voice_lines_unlocked : bool = false
+var play_cut_voicelines : bool = false
+
 func _init():
 	pass
 	
@@ -42,3 +45,14 @@ func register_thug_death():
 		current_player.set_ui_visible(false)
 		main_menu.trigger_victory()
 		music_manager.PlayMusic(MUSIC_VICTORY,2)
+
+func unlock_cut_voicelines():
+	cut_voice_lines_unlocked = true
+	current_player.show_cut_voice_lines_howto()
+	
+
+func _input(event):
+	if cut_voice_lines_unlocked and event.is_action_pressed("toggle_cut_voice_lines"):
+		play_cut_voicelines = not play_cut_voicelines
+		if play_cut_voicelines:
+			current_player.play_taunt()

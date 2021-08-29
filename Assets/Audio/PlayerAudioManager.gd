@@ -54,8 +54,9 @@ func PlayPlayerDying():
 	extraplayer.play()
 
 func PlayPlayerTauntEnemy():
-	dialogueplayer.stream = taunt_lines[randi()%len(taunt_lines)]
-	dialogueplayer.play()
+	if Globals.play_cut_voicelines:
+		dialogueplayer.stream = taunt_lines[randi()%len(taunt_lines)]
+		dialogueplayer.play()
 
 func PlayJetEngage(jetpackplayer):
 	jetpackplayer.stream = streams[0]

@@ -508,14 +508,18 @@ func play_death_voiceline():
 	$VoiceLinePlayer.play()
 
 func play_taunt_voiceline():
-	$VoiceLinePlayer.stream = thug_taunt_streams[randi() % len(thug_taunt_streams)]
-	$VoiceLinePlayer.play()
+	if Globals.play_cut_voicelines:
+		$VoiceLinePlayer.stream = thug_taunt_streams[randi() % len(thug_taunt_streams)]
+		$VoiceLinePlayer.play()
 	
 func play_fall_death_voiceline():
-	$VoiceLinePlayer.stream = thug_fall_death_streams[randi() % len(thug_fall_death_streams)]
-	$VoiceLinePlayer.play()
+	if Globals.play_cut_voicelines:
+		$VoiceLinePlayer.stream = thug_fall_death_streams[randi() % len(thug_fall_death_streams)]
+		$VoiceLinePlayer.play()
 	
 func play_target_spotted_voiceline():
+	if not Globals.play_cut_voicelines:
+		return
 	if distance_to_player < 30 and rand_range(0,1) < 0.4:
 		$VoiceLinePlayer.stream = thug_target_spotted_streams[randi() % len(thug_target_spotted_streams)]
 		$VoiceLinePlayer.play()

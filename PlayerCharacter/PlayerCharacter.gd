@@ -374,6 +374,9 @@ func on_health_regeneration_timer_timeout():
 func on_reload_timer_timeout():
 	change_ammo_in_clip(GRENADES_PER_CLIP)
 
+func play_taunt():
+	$MeshPivot/PlayerAudioManager.PlayPlayerTauntEnemy()
+
 func on_dialogue_timer_timeout():
 	$MeshPivot/PlayerAudioManager.PlayPlayerTauntEnemy()
 	$DialogueTimer.wait_time = rand_range(5,30)
@@ -384,3 +387,8 @@ func set_gif_mode():
 	$PlayerUI/StatusBarContainer.visible = false
 	$PlayerUI/HowToPlayPrompt.visible = false
 	$PlayerUI/TitleLabel.visible = true
+
+func show_cut_voice_lines_howto():
+#	$PlayerUI/HowToPlayPrompt
+	$PlayerUI/HowToPlayPrompt.modulate = Color('#c2a042')
+	$PlayerUI/HowToPlay/CutVoiceLines.visible = true
