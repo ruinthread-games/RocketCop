@@ -55,9 +55,6 @@ shape = SubResource( 3 )
 
 [node name="MainMenu" parent="." instance=ExtResource( 3 )]
 
-[node name="Settings" parent="." instance=ExtResource( 5 )]
-visible = false
-
 [node name="MusicManager" parent="." instance=ExtResource( 4 )]
 
 [node name="Foundation" parent="." instance=ExtResource( 6 )]
