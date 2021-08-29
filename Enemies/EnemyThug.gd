@@ -73,8 +73,14 @@ var thug_death_streams = []
 var thug_fall_death_streams = []
 var thug_target_spotted_streams = []
 var thug_taunt_streams = []
+var footsteps = []
 
 var can_play_voiceline = true
+
+onready var leftfootstepplayer = $MeshPivot/Armature/Skeleton/LeftFootBoneAttachment/LeftFootstepPlayer
+onready var rightfootstepplayer = $MeshPivot/Armature/Skeleton/RightFootBoneAttachment/RightFootstepPlayer
+
+var idle_run_blend : float = 0.0
 
 func load_thug_voicelines():
 	for i in range(11):
@@ -85,6 +91,8 @@ func load_thug_voicelines():
 		thug_target_spotted_streams.append(load("res://Assets/Audio/npc_target_spotted_%02d.wav" % (i+1)))
 	for i in range(7):
 		thug_taunt_streams.append(load("res://Assets/Audio/npc_taunt_%02d.wav" % (i+1)))
+	footsteps.append(load("res://Assets/Audio/player_foot1.ogg"))
+	footsteps.append(load("res://Assets/Audio/player_foot2.ogg"))
 
 func create_master_animations():
 	var delete_extra_keyframes_anims = ["Run1","Run2","Run3","Run4","Idle1","Idle2","Aiming","TPose","GrenadeBlast","Dead"]
@@ -407,9 +415,11 @@ func rotate_towards_acceleration(delta):
 
 func blend_idle_run():
 	if is_on_floor():
-		animation_tree.set("parameters/IdleRunBlend/blend_amount",clamp(velocity.length()/RUNNING_SPEED,0,1))
+		idle_run_blend = clamp(velocity.length()/RUNNING_SPEED,0,1)
 	else:
-		animation_tree.set("parameters/IdleRunBlend/blend_amount",0)
+		idle_run_blend = 0.0
+	animation_tree.set("parameters/IdleRunBlend/blend_amount",idle_run_blend)
+		
 
 func apply_gravity(delta):
 	$DebugLabel.text = str('is on floor: ', is_on_floor())
@@ -528,3 +538,17 @@ func play_target_spotted_voiceline():
 
 func on_voiceline_timer_timeout():
 	can_play_voiceline = true
+
+func play_footstep_left():
+	if idle_run_blend < 0.5:
+		return
+	leftfootstepplayer.unit_db = 20.0 * (idle_run_blend)
+	leftfootstepplayer.stream = footsteps[randi() % len(footsteps)]
+	leftfootstepplayer.play()
+
+func play_footstep_right():
+	if idle_run_blend < 0.5:
+		return
+	leftfootstepplayer.unit_db = 20.0 * (idle_run_blend)
+	rightfootstepplayer.stream = footsteps[randi() % len(footsteps)]
+	rightfootstepplayer.play()
