@@ -48,6 +48,8 @@ mesh = SubResource( 2 )
 material/0 = SubResource( 3 )
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+unit_size = 2.0
+bus = "Sound Effects"
 
 [node name="BlastRadius" type="Area" parent="."]
 collision_mask = 7
