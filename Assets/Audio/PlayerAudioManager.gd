@@ -12,6 +12,9 @@ onready var gunplayer = $GunPlayer
 onready var dialogueplayer = $DialoguePlayer
 onready var extraplayer = $ExtraPlayer
 
+onready var leftfootstepplayer = get_parent().get_node("Armature/Skeleton/LeftFootBoneAttachment/LeftFootstepPlayer")
+onready var rightfootstepplayer = get_parent().get_node("Armature/Skeleton/RightFootBoneAttachment/RightFootstepPlayer")
+
 var player_velocity
 var isAirborn
 var isRocketing
@@ -19,6 +22,7 @@ var file_paths = ["Assets/Audio/jet_engage.ogg", "Assets/Audio/jet_fly.ogg", "As
 
 var streams = Array()
 var taunt_lines = Array()
+var footsteps = Array()
 
 var jet_engage_audio = null
 var jet_fly_audio = null
@@ -42,6 +46,23 @@ func _ready():
 	for i in range(7):
 		var taunt = load("res://Assets/Audio/pc_taunt_0"+str(i+1)+".wav")
 		taunt_lines.append(taunt)
+		
+	footsteps.append(load("res://Assets/Audio/player_foot1.ogg"))
+	footsteps.append(load("res://Assets/Audio/player_foot2.ogg"))
+
+func PlayFootstepLeft():
+	if player.idle_run_blend < 0.5:
+		return
+	leftfootstepplayer.unit_db = 20.0 * (player.idle_run_blend)
+	leftfootstepplayer.stream = footsteps[randi() % len(footsteps)]
+	leftfootstepplayer.play()
+
+func PlayFootstepRight():
+	if player.idle_run_blend < 0.5:
+		return
+	leftfootstepplayer.unit_db = 20.0 * (player.idle_run_blend)
+	rightfootstepplayer.stream = footsteps[randi() % len(footsteps)]
+	rightfootstepplayer.play()
 
 func PlayPlayerDeath():
 	dialogueplayer.stream = load("res://Assets/Audio/pc_die_01.wav")

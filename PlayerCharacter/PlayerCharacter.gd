@@ -67,6 +67,8 @@ var mouse_control_camera : bool = false
 
 var game_started : bool = false
 
+var idle_run_blend : float = 0.0
+
 func start_game():
 	mouse_control_camera = true
 	set_ui_visible(true)
@@ -328,9 +330,11 @@ func rotate_towards_acceleration(delta):
 
 func blend_idle_run():
 	if is_on_floor():
-		animation_tree.set("parameters/IdleRunBlend/blend_amount",clamp(velocity.length()/RUNNING_SPEED,0,1))
+		idle_run_blend = clamp(velocity.length()/RUNNING_SPEED,0,1)
 	else:
-		animation_tree.set("parameters/IdleRunBlend/blend_amount",0)
+		idle_run_blend = 0
+	animation_tree.set("parameters/IdleRunBlend/blend_amount",idle_run_blend)
+
 
 func apply_jetpack(delta):
 	$MeshPivot/Armature/Skeleton/JetpackBoneAttachment/RightThrusterParticles.get_process_material().damping = 10.0
@@ -392,3 +396,4 @@ func show_cut_voice_lines_howto():
 #	$PlayerUI/HowToPlayPrompt
 	$PlayerUI/HowToPlayPrompt.modulate = Color('#c2a042')
 	$PlayerUI/HowToPlay/CutVoiceLines.visible = true
+

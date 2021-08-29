@@ -11,5 +11,5 @@ dest_files=[ "res://.import/player_foot2.ogg-24dfa517c0379583c0475d8238331876.og
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

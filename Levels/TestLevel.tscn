@@ -1,10 +1,9 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Levels/Level.gd" type="Script" id=1]
 [ext_resource path="res://PlayerCharacter/PlayerCharacter.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Menus/MainMenu.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Audio/MusicManager.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Menus/Settings.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Levels/Modules/Foundation/Foundation.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Levels/Megaphone.tscn" type="PackedScene" id=7]
 
