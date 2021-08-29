@@ -16,6 +16,12 @@ var main_menu = null
 var settings_menu = null
 var music_manager = null
 
+const MUSIC_MENU = 0
+const MUSIC_ACTION = 1
+const MUSIC_VICTORY = 2
+const MUSIC_FAILURE = 3
+
+
 enum { FIRE_MODE_HITSCAN, FIRE_MODE_PROJECTILES }
 
 var enemy_fire_mode = FIRE_MODE_PROJECTILES
@@ -35,3 +41,4 @@ func register_thug_death():
 		current_player.mouse_control_camera = false
 		current_player.set_ui_visible(false)
 		main_menu.trigger_victory()
+		music_manager.PlayMusic(MUSIC_VICTORY,2)

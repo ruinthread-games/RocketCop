@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Mus_Mission_Failure.ogg-3ba344a0e98e1cb5868305c018d3dbd8.oggstr"
+
+[deps]
+
+source_file="res://Assets/Audio/Mus_Mission_Failure.ogg"
+dest_files=[ "res://.import/Mus_Mission_Failure.ogg-3ba344a0e98e1cb5868305c018d3dbd8.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

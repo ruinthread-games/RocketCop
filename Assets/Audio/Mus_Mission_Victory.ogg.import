@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Mus_Mission_Victory.ogg-a512194b52e7d96c416c12e98e4fbc76.oggstr"
+
+[deps]
+
+source_file="res://Assets/Audio/Mus_Mission_Victory.ogg"
+dest_files=[ "res://.import/Mus_Mission_Victory.ogg-a512194b52e7d96c416c12e98e4fbc76.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

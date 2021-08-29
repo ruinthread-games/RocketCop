@@ -205,6 +205,7 @@ func die():
 	$DeathTimer.start()
 	is_dead = true
 	$MeshPivot/PlayerAudioManager.PlayPlayerDeath()
+	Globals.music_manager.PlayMusic(Globals.MUSIC_FAILURE,1)
 	
 func on_death_timer_timeout():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)

@@ -4,7 +4,7 @@ extends Node
 # Declare member variables here. Examples:
 # var a = 2
 # var b = "text"
-var file_paths = ["Assets/Audio/Mus_Menu_01.ogg", "Assets/Audio/Mus_RocketCop_Action_01.ogg"]
+var file_paths = ["Assets/Audio/Mus_Menu_01.ogg", "Assets/Audio/Mus_RocketCop_Action_01.ogg","res://Assets/Audio/Mus_Mission_Victory.ogg","res://Assets/Audio/Mus_Mission_Failure.ogg"]
 var streams = Array()
 var idx_song
 var curr_vol
@@ -37,13 +37,13 @@ func on_fadeout_completed(obj,key):
 	streamplayer.stream = streams[queued_track_index]
 	streamplayer.play()
 
-func PlayMusic(idx):
+func PlayMusic(idx,fade_out_time=5):
 	if streamplayer.is_playing():
 		fade_out_tween = Tween.new()
 		add_child(fade_out_tween)
 		fade_out_tween.connect("tween_completed",self,"on_fadeout_completed")
 		curr_vol = streamplayer.volume_db
-		fade_out_tween.interpolate_property(streamplayer,"volume_db",streamplayer.volume_db,streamplayer.volume_db-50,5)
+		fade_out_tween.interpolate_property(streamplayer,"volume_db",streamplayer.volume_db,streamplayer.volume_db-50,1)
 		fade_out_tween.start()
 		queued_track_index = idx
 	else:
