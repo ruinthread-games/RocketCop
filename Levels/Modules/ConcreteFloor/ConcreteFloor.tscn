@@ -6,6 +6,8 @@
 size = Vector3( 10, 0.5, 10 )
 
 [sub_resource type="SpatialMaterial" id=2]
+params_diffuse_mode = 4
+params_specular_mode = 3
 albedo_color = Color( 0.337255, 0.337255, 0.337255, 1 )
 
 [sub_resource type="ConcavePolygonShape" id=3]

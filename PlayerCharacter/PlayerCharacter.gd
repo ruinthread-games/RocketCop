@@ -69,6 +69,8 @@ var game_started : bool = false
 
 var idle_run_blend : float = 0.0
 
+var grenade_arc_preview : ImmediateGeometry
+
 func start_game():
 	mouse_control_camera = true
 	set_ui_visible(true)
@@ -135,6 +137,8 @@ func _ready():
 	set_xray(false)
 	$PlayerUI/DeathMessage.visible = false
 	set_ui_visible(false)
+	grenade_arc_preview = ImmediateGeometry.new()
+	add_child(grenade_arc_preview)
 	
 	
 func set_ui_visible(new_visible):
@@ -155,6 +159,8 @@ func _process(delta):
 	update_run_speed()
 	get_input(delta)
 	recharge_jetpack(delta)
+	
+	
 #	$DebugLabel.text = str('u/d vel: ',up_down_movement.y)
 	
 func _physics_process(delta):
@@ -176,6 +182,7 @@ func _physics_process(delta):
 	blend_idle_run()
 	up_down_movement.x = 0
 	up_down_movement.z = 0
+	preview_grenade_arc()
 	
 func update_ui():
 	$PlayerUI/StatusBarContainer/CollateralDamageLabel.text = str('Collateral damage caused: ', Globals.collateral_damage_caused*1000.0, '$')
@@ -211,7 +218,7 @@ func die():
 	
 func on_death_timer_timeout():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	get_tree().change_scene(Globals.current_level)
+	get_tree().change_scene(Globals.current_level_scene)
 	
 func set_camera_follow():
 	camera_pivot.follow_me(translation + camera_offset)
@@ -268,6 +275,37 @@ func change_ammo_in_clip(delta_ammo):
 func reload():
 	$ReloadTimer.start()
 
+func preview_grenade_arc():
+	grenade_arc_preview.clear()
+	grenade_arc_preview.begin(Mesh.PRIMITIVE_LINES)
+	var x0 : Vector3 = $MeshPivot/Armature/Skeleton/GrenadeLauncherBarrelBoneAttachment/Spatial.global_transform.origin
+	var v0 : Vector3 = -50 * $MeshPivot/Armature/Skeleton/GrenadeLauncherBarrelBoneAttachment/Spatial.global_transform.basis.y
+	var gravity_scale = 6
+	grenade_arc_preview.add_vertex(to_local(x0))
+	var t1 = abs(-v0.y / (gravity_scale * -9.81))
+	print('t1 = ', t1)
+#	print('x0=', x0)
+#	print('v0=', v0)
+	var parabolic_arc_of_t
+	var last_parabolic_arc_of_t = x0
+	$Crosshair3d.visible = false
+	for ind_t in range(8):
+		var t = ind_t * 0.5*t1# 0.01
+		parabolic_arc_of_t = x0 + v0 * t + 0.5 * gravity_scale * Vector3(0,-9.81,0) * t * t
+#		
+		var space_state = get_world().direct_space_state
+		var collision = space_state.intersect_ray(last_parabolic_arc_of_t,parabolic_arc_of_t,[self])
+		if collision:
+			$Crosshair3d.global_transform.origin = collision.normal + collision.position
+			if aim_down_sights_progress > 0.5:
+				$Crosshair3d.visible = true
+			#$Crosshair3d.transform = $Crosshair3d.transform.looking_at(collision.position + collision.normal,Vector3.UP)
+			break
+		grenade_arc_preview.add_vertex(transform.inverse() * parabolic_arc_of_t)
+		grenade_arc_preview.add_vertex(transform.inverse() * parabolic_arc_of_t)
+	grenade_arc_preview.add_vertex(to_local(parabolic_arc_of_t))
+	grenade_arc_preview.end()
+
 func fire_grenade():
 	if aim_down_sights_progress == 1:
 		if ammo_in_clip > 0:
@@ -282,9 +320,11 @@ func change_aim_down_sights_progress(delta_ads):
 	var crosshair_alpha = aim_down_sights_progress
 	if aim_down_sights_progress == 1.0:
 		$PlayerUI/Crosshair.modulate = Color(1,0,0,crosshair_alpha)
+		$Crosshair3d.modulate = Color(1,0,0,crosshair_alpha)
 		$MeshPivot/Armature/Skeleton/SkeletonIK.start()
 	else:
 		$PlayerUI/Crosshair.modulate = Color(1,1,1,crosshair_alpha)
+		$Crosshair3d.modulate = Color(1,1,1,crosshair_alpha)
 		$MeshPivot/Armature/Skeleton/SkeletonIK.stop()
 	$CameraPivot/CameraPivot/SpringArm.spring_length = lerp(5.0,2.5,aim_down_sights_progress)
 	camera_offset = lerp(Vector3.ZERO,Vector3(0,1,0)+camera_pivot.global_transform.basis.x,aim_down_sights_progress)

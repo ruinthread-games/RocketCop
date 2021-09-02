@@ -1,0 +1,94 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://Levels/Modules/BrickWall/BrickWallMaterial.tres" type="Material" id=1]
+[ext_resource path="res://Levels/Modules/BrickWall/WallSegmentRigid.gd" type="Script" id=2]
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 2, 10, 2 )
+
+[sub_resource type="ConvexPolygonShape" id=9]
+points = PoolVector3Array( -1, 5, 1, 1, 5, -1, 1, 5, 1, -1, 5, -1, -1, -5, 1, 1, -5, -1, 1, -5, 1, -1, -5, -1, 1, 5, 1, -1, 5, -1, 1, 5, -1, -1, 5, 1, 1, -5, 1, -1, -5, -1, 1, -5, -1, -1, -5, 1, 1, 5, 1, -1, -5, 1, -1, 5, 1, 1, -5, 1, 1, 5, -1, -1, -5, -1, -1, 5, -1, 1, -5, -1 )
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 4, 10, 2 )
+
+[sub_resource type="ConvexPolygonShape" id=10]
+points = PoolVector3Array( -2, 5, 1, 2, 5, -1, 2, 5, 1, -2, 5, -1, -2, -5, 1, 2, -5, -1, 2, -5, 1, -2, -5, -1, 2, 5, 1, -2, 5, -1, 2, 5, -1, -2, 5, 1, 2, -5, 1, -2, -5, -1, 2, -5, -1, -2, -5, 1, 2, 5, 1, -2, -5, 1, -2, 5, 1, 2, -5, 1, 2, 5, -1, -2, -5, -1, -2, 5, -1, 2, -5, -1 )
+
+[sub_resource type="ConvexPolygonShape" id=11]
+points = PoolVector3Array( -2, 5, 1, 2, 5, -1, 2, 5, 1, -2, 5, -1, -2, -5, 1, 2, -5, -1, 2, -5, 1, -2, -5, -1, 2, 5, 1, -2, 5, -1, 2, 5, -1, -2, 5, 1, 2, -5, 1, -2, -5, -1, 2, -5, -1, -2, -5, 1, 2, 5, 1, -2, -5, 1, -2, 5, 1, 2, -5, 1, 2, 5, -1, -2, -5, -1, -2, 5, -1, 2, -5, -1 )
+
+[sub_resource type="CubeMesh" id=6]
+size = Vector3( 2, 10, 4 )
+
+[sub_resource type="ConvexPolygonShape" id=7]
+points = PoolVector3Array( -1, 5, 2, 1, 5, -2, 1, 5, 2, -1, 5, -2, -1, -5, 2, 1, -5, -2, 1, -5, 2, -1, -5, -2, 1, 5, 2, -1, 5, -2, 1, 5, -2, -1, 5, 2, 1, -5, 2, -1, -5, -2, 1, -5, -2, -1, -5, 2, 1, 5, 2, -1, -5, 2, -1, 5, 2, 1, -5, 2, 1, 5, -2, -1, -5, -2, -1, 5, -2, 1, -5, -2 )
+
+[sub_resource type="ConvexPolygonShape" id=8]
+points = PoolVector3Array( -1, 5, 2, 1, 5, -2, 1, 5, 2, -1, 5, -2, -1, -5, 2, 1, -5, -2, 1, -5, 2, -1, -5, -2, 1, 5, 2, -1, 5, -2, 1, 5, -2, -1, 5, 2, 1, -5, 2, -1, -5, -2, 1, -5, -2, -1, -5, 2, 1, 5, 2, -1, -5, 2, -1, 5, 2, 1, -5, 2, 1, 5, -2, -1, -5, -2, -1, 5, -2, 1, -5, -2 )
+
+[node name="WallSegmentRigid" type="Spatial"]
+script = ExtResource( 2 )
+
+[node name="Pillar" type="RigidBody" parent="."]
+mode = 1
+mass = 1000.0
+
+[node name="Pillar" type="MeshInstance" parent="Pillar"]
+mesh = SubResource( 1 )
+material/0 = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Pillar"]
+shape = SubResource( 9 )
+
+[node name="West" type="RigidBody" parent="."]
+mode = 1
+mass = 1000.0
+
+[node name="West" type="MeshInstance" parent="West"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 0 )
+mesh = SubResource( 3 )
+material/0 = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="West"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 0 )
+shape = SubResource( 10 )
+
+[node name="East" type="RigidBody" parent="."]
+mode = 1
+mass = 1000.0
+
+[node name="East" type="MeshInstance" parent="East"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0 )
+mesh = SubResource( 3 )
+material/0 = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="East"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0 )
+shape = SubResource( 11 )
+
+[node name="South" type="RigidBody" parent="."]
+mode = 1
+mass = 1000.0
+
+[node name="South" type="MeshInstance" parent="South"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3 )
+mesh = SubResource( 6 )
+material/0 = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="South"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3 )
+shape = SubResource( 7 )
+
+[node name="North" type="RigidBody" parent="."]
+mode = 1
+mass = 1000.0
+
+[node name="North" type="MeshInstance" parent="North"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3 )
+mesh = SubResource( 6 )
+material/0 = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="North"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3 )
+shape = SubResource( 8 )

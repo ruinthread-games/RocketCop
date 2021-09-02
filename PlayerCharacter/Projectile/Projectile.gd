@@ -44,7 +44,7 @@ func on_explosion_timer_timeout():
 	linear_velocity = Vector3.ZERO
 	
 	for body in $BlastRadius.get_overlapping_bodies():
-		print('explosion: ', body.get_name(), body.get_parent().get_name())
+		#print('explosion: ', body.get_name(), body.get_parent().get_name())
 		
 		if body.is_in_group(Globals.DESTRUCTIBLE_GROUP):
 			body.destroy(body,global_transform.origin)

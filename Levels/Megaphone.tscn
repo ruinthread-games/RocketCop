@@ -71,7 +71,7 @@ script = ExtResource( 4 )
 transform = Transform( 0.3, 0, 0, 0, -1.31134e-08, -0.3, 0, 0.3, -1.31134e-08, 0, 0, 0 )
 
 [node name="Cylinder" type="MeshInstance" parent="Megaphone"]
-transform = Transform( 0.441061, -0.897477, 0, 0.897477, 0.441061, 0, 0, 0, 1, 0, 0, 0 )
+transform = Transform( -0.967535, -0.252739, 0, 0.252739, -0.967535, 0, 0, 0, 1, 0, 0, 0 )
 mesh = SubResource( 1 )
 material/0 = null
 material/1 = null

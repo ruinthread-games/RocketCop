@@ -10,7 +10,8 @@ var collateral_damage_caused : int = 0
 var living_thugs : int
 var total_thugs : int
 
-var current_level = "res://Levels/TestLevel.tscn"
+var current_level_scene = "res://Levels/TestLevel.tscn"
+var current_level_instance = null
 
 var main_menu = null
 var settings_menu = null

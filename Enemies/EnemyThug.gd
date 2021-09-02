@@ -175,7 +175,7 @@ func randomise_appearance():
 	var pants_colours = [Color('#C5FFFD'),Color('#88D9E6'),Color('#8B8BAE'),Color('#526760'),Color('#374B4A')]
 	var skin_colours = [Color('#8D5524'),Color('#C68642'),Color('#E0AC69'),Color('#F1C27D'),Color('#FFDBAC')]
 	var jacket_colours = [Color('#121420'),Color('#1B2432'),Color('#403233'),Color('#272727'),Color('#520F00')]
-	var shoe_sole_colours = [Color('17A398'),Color('#3F88C5'),Color('#E94F37')]
+	var shoe_sole_colours = [Color('#17A398'),Color('#3F88C5'),Color('#E94F37')]
 	
 	for i in range($MeshPivot/Armature/Skeleton/Goon.mesh.get_surface_count()):
 		var material : Material = $MeshPivot/Armature/Skeleton/Goon.mesh.surface_get_material(i).duplicate()
@@ -198,6 +198,7 @@ func randomise_appearance():
 				$MeshPivot/Armature/Skeleton/Beret.set_surface_material(0,beret_material)
 		if i == 3:
 			material.albedo_color = shoe_sole_colours[randi() % len(shoe_sole_colours)]
+			material.emission = shoe_sole_colours[randi() % len(shoe_sole_colours)]
 		$MeshPivot/Armature/Skeleton/Goon.set_surface_material(i,material)
 	
 

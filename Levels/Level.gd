@@ -3,8 +3,8 @@ extends Spatial
 const CELL_WIDTH = 10
 const GRID_WIDTH = 8
 
-onready var wall_segment_base = load("res://Levels/Modules/BrickWall/BrickWall.tscn")
-onready var floor_base = load("res://Levels/Modules/ConcreteFloor/ConcreteFloor.tscn")
+onready var wall_segment_base = load("res://Levels/Modules/BrickWall/WallSegmentRigid.tscn") #load("res://Levels/Modules/BrickWall/BrickWall.tscn")
+onready var floor_base = load("res://Levels/Modules/ConcreteFloor/ConcreteFloorRigid.tscn") #load("res://Levels/Modules/ConcreteFloor/ConcreteFloor.tscn")
 onready var foundation = load("res://Levels/Modules/Foundation/Foundation.tscn")
 onready var rooftop = load("res://Levels/Modules/Rooftop/Rooftop.tscn")
 
@@ -13,8 +13,10 @@ onready var enemy_thug_base = load("res://Enemies/EnemyThug.tscn")
 onready var cell_parent = $GeneratedCells
 onready var enemy_parent = $SpawnedEnemies
 
-var cell_index_dict = {}
-var cell_list = []
+var wall_index_dict = {}
+var floor_index_dict = {}
+var wall_segment_list = []
+var floor_segment_list = []
 
 var needs_generate_level : bool = true
 
@@ -23,6 +25,8 @@ var enemy_index : int = 0
 func _ready():
 	generate_level()
 	
+func _init():
+	Globals.current_level_instance = self
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
@@ -35,14 +39,28 @@ func to_key(row,col,layer):
 	return Vector3(int(floor(row)),int(floor(col)),int(floor(layer)))
 
 func register_new_cell(new_cell):
-	cell_index_dict[to_key(new_cell.row,new_cell.col,new_cell.layer)] = len(cell_list)
-	cell_list.push_back(new_cell)
+	if new_cell.cell_type == 'brick_wall':
+		wall_index_dict[to_key(new_cell.row,new_cell.col,new_cell.layer)] = len(wall_segment_list)
+		wall_segment_list.push_back(new_cell)
+	elif new_cell.cell_type == 'concrete_floor':
+		floor_index_dict[to_key(new_cell.row,new_cell.col,new_cell.layer)] = len(floor_segment_list)
+		floor_segment_list.push_back(new_cell)
 
 func get_cardinal_neighbours(cell):
 	var neighbours = [null, null, null, null]
 	if cell == null:
 		return neighbours
+	
 	else:
+		var cell_list = null
+		var cell_index_dict = null
+		if cell.cell_type == 'brick_wall':
+			cell_list = wall_segment_list
+			cell_index_dict = wall_index_dict
+		elif cell.cell_type == 'concrete_floor':
+			cell_list = floor_segment_list
+			cell_index_dict = floor_index_dict
+			
 		var key = to_key(cell.row+1,cell.col,cell.layer)
 		if key in cell_index_dict:
 			neighbours[1] = cell_list[cell_index_dict[key]]
@@ -61,7 +79,7 @@ func get_cardinal_neighbours(cell):
 	return neighbours
 
 func cell_below_is_occupied(row,col,layer):
-	return to_key(row,col,layer-1) in cell_index_dict
+	return to_key(row,col,layer-1) in wall_index_dict or to_key(row,col,layer-1) in floor_index_dict
 
 func generate_structure(offset_indices : Vector3,num_rows : float,num_cols : float,num_layers : float):
 	var rooftop_indices : Array = []
@@ -85,10 +103,11 @@ func generate_structure(offset_indices : Vector3,num_rows : float,num_cols : flo
 				var floor_instance = floor_base.instance()
 				cell_parent.add_child(floor_instance)
 				floor_instance.set_owner(get_tree().edited_scene_root)
-				floor_instance.row = offset_indices.x + ind_row
-				floor_instance.col = offset_indices.z + ind_col
-				floor_instance.layer = offset_indices.y + ind_layer
+				floor_instance.row =  + ind_row #+ offset_indices.x
+				floor_instance.col =  + ind_col #+offset_indices.z
+				floor_instance.layer =  + ind_layer #+offset_indices.y
 				floor_instance.global_transform.origin = spatial_index_to_coord(ind_row,ind_col,ind_layer)
+				register_new_cell(floor_instance)
 				
 				if (ind_row != offset_indices.x and ind_row != offset_indices.x + num_rows - 1) and (ind_col != offset_indices.z and ind_col != offset_indices.z + num_cols - 1):
 					if rand_range(0,1) < 0.5 or (ind_layer > 0 and not cell_below_is_occupied(ind_row,ind_col,ind_layer)):
@@ -126,8 +145,11 @@ func spawn_enemy(spatial_index):
 
 func generate_level():
 	print('generating level')
-	cell_list = []
-	cell_index_dict = {}
+	wall_segment_list = []
+	wall_index_dict = {}
+	floor_segment_list = []
+	floor_index_dict = {}
+	
 	randomize()
 	for child in cell_parent.get_children():
 		child.queue_free()
@@ -157,7 +179,7 @@ func generate_level():
 					var rooftop_index = rooftop_indices[random_rooftop_index]
 					spawn_enemy(rooftop_index)
 	
-	for cell in cell_list:
+	for cell in wall_segment_list:
 		var cardinal_neighbours = get_cardinal_neighbours(cell)
 		var needs_wall_segment  = [false,false,false,false]
 		for i in range(4):
@@ -182,5 +204,27 @@ func _on_Area_body_entered(body):
 		if body.is_in_group(Globals.ENEMY_GROUP):
 			body.die()
 		if not body.get_parent().get_parent().is_in_group(Globals.FOUNDATION_GROUP):
-			print(body.get_name(),' hit kill plane, remove')
+			#print(body.get_name(),' hit kill plane, remove')
 			body.queue_free()
+
+func trigger_collapse(row,col,layer):
+	var has_layers_above = true
+	var next_layer = layer+1
+	while has_layers_above:
+		var key = to_key(row,col,next_layer)
+		if key in wall_index_dict or key in floor_index_dict:
+			print('replace static with rigid', row, col, next_layer)
+			if key in wall_index_dict:
+				if is_instance_valid(wall_segment_list[wall_index_dict[key]]):
+					wall_segment_list[wall_index_dict[key]].activate_rigid()
+			if key in floor_index_dict:
+				if is_instance_valid(floor_segment_list[floor_index_dict[key]]):
+					floor_segment_list[floor_index_dict[key]].activate_rigid()
+			else:
+				print('\tfloor not found')
+				for floor_inst in floor_segment_list:
+					print('\trcl: ',floor_inst.row, floor_inst.col, floor_inst.layer)
+			next_layer += 1
+		else:
+			has_layers_above = false
+		

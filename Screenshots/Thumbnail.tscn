@@ -1,0 +1,97 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://PlayerCharacter/PlayerCharacter.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Fonts/TitleFontBlack.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Screenshots/Thumbnail.gd" type="Script" id=3]
+[ext_resource path="res://Levels/Modules/Rooftop/Rooftop.tscn" type="PackedScene" id=4]
+
+[sub_resource type="ProceduralSky" id=1]
+sky_top_color = Color( 0.7544, 0.87308, 0.92, 1 )
+sky_horizon_color = Color( 0.0117647, 0.0941176, 0.160784, 1 )
+ground_bottom_color = Color( 0.0941176, 0.105882, 0.117647, 1 )
+ground_horizon_color = Color( 0.192157, 0.176471, 0.164706, 1 )
+
+[sub_resource type="Environment" id=2]
+background_mode = 2
+background_sky = SubResource( 1 )
+ambient_light_energy = 7.53
+ambient_light_sky_contribution = 0.79
+fog_enabled = true
+fog_color = Color( 0.0941176, 0.105882, 0.117647, 1 )
+fog_depth_enabled = false
+fog_height_enabled = true
+fog_height_min = 69.4
+fog_height_max = -20.0
+tonemap_mode = 2
+tonemap_white = 12.32
+dof_blur_far_enabled = true
+dof_blur_far_distance = 144.84
+dof_blur_far_transition = 38.37
+dof_blur_far_amount = 0.05
+dof_blur_far_quality = 2
+
+[node name="Spatial" type="Spatial"]
+script = ExtResource( 3 )
+
+[node name="PlayerCharacter" parent="." instance=ExtResource( 1 )]
+transform = Transform( 0.999264, 0, -0.0383704, 0, 1, 0, 0.0383704, 0, 0.999264, 0, 0, 0 )
+
+[node name="Label" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -456.0
+margin_top = 130.0
+margin_right = 457.0
+margin_bottom = 356.0
+custom_fonts/font = ExtResource( 2 )
+text = "Rocket"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label2" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -225.0
+margin_top = -334.0
+margin_right = 225.0
+margin_bottom = -108.0
+custom_fonts/font = ExtResource( 2 )
+text = "Cop"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.999737, -0.022949, 0, 0.022949, 0.999737, 0, -0.108744, 2.51803 )
+current = true
+far = 5000.0
+
+[node name="Camera2" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 500, 0 )
+far = 3000.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 2 )
+
+[node name="Rooftop" parent="." instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55275, 0 )
+
+[node name="GeneratedCells" type="Spatial" parent="."]
+
+[node name="SpawnedEnemies" type="Spatial" parent="."]
+
+[node name="SpotLight" type="SpotLight" parent="."]
+transform = Transform( 0.925765, -0.207204, -0.316268, 0.266548, 0.95091, 0.157234, 0.268163, -0.229863, 0.935549, -0.711021, 0.819895, 0.952303 )
+light_color = Color( 1, 0.956863, 0.509804, 1 )
+light_energy = 10.0
+spot_range = 8.26252
+
+[node name="OmniLight" type="OmniLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0944484, -0.241325, 0.704 )
+light_energy = 7.22
+omni_range = 9.7
+
+[node name="MeshInstance" type="MeshInstance" parent="."]

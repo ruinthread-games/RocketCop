@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Levels/Level.gd" type="Script" id=1]
 [ext_resource path="res://PlayerCharacter/PlayerCharacter.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Menus/MainMenu.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Assets/Audio/MusicManager.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Menus/Settings.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Levels/Modules/Foundation/Foundation.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Levels/Megaphone.tscn" type="PackedScene" id=7]
 
@@ -25,6 +26,7 @@ fog_height_min = 69.4
 fog_height_max = -20.0
 tonemap_mode = 2
 tonemap_white = 11.88
+glow_enabled = true
 
 [sub_resource type="BoxShape" id=3]
 extents = Vector3( 1000, 100, 1000 )
@@ -53,6 +55,8 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -200, 0 )
 shape = SubResource( 3 )
 
 [node name="MainMenu" parent="." instance=ExtResource( 3 )]
+
+[node name="Settings" parent="." instance=ExtResource( 5 )]
 
 [node name="MusicManager" parent="." instance=ExtResource( 4 )]
 
