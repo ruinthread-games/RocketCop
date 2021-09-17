@@ -283,7 +283,7 @@ func preview_grenade_arc():
 	var gravity_scale = 6
 	grenade_arc_preview.add_vertex(to_local(x0))
 	var t1 = abs(-v0.y / (gravity_scale * -9.81))
-	print('t1 = ', t1)
+#	print('t1 = ', t1)
 #	print('x0=', x0)
 #	print('v0=', v0)
 	var parabolic_arc_of_t

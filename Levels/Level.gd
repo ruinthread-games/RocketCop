@@ -156,7 +156,10 @@ func generate_level():
 	
 	if true:
 		var rooftop_indices = generate_structure(Vector3(0,0,0),2,2,8)
-		Globals.current_player.global_transform.origin = spatial_index_to_coord(rooftop_indices[0].x,rooftop_indices[0].z,rooftop_indices[0].y)
+		var player_spawn_pos = spatial_index_to_coord(rooftop_indices[0].x,rooftop_indices[0].z,rooftop_indices[0].y)
+		Globals.current_player.global_transform.origin = player_spawn_pos
+		for drone in get_tree().get_nodes_in_group("Active Drones"):
+			drone.global_transform.origin = player_spawn_pos + Vector3(5,0,0)
 	enemy_index = 0
 	
 	for i in range(4):
